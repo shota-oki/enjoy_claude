@@ -1,8 +1,7 @@
 import "fake-indexeddb/auto";
 import "@testing-library/jest-dom/vitest";
 
-// jsdom には Blob の表示用URLがないため、テスト用の値を返す
-if (!URL.createObjectURL) {
-  URL.createObjectURL = () => "blob:test";
-  URL.revokeObjectURL = () => undefined;
-}
+// Node の URL.createObjectURL は fake-indexeddb から取り出した Blob を扱えないため、
+// テストでは常に固定の値を返す
+URL.createObjectURL = () => "blob:test";
+URL.revokeObjectURL = () => undefined;

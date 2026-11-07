@@ -1,0 +1,52 @@
+/* グループ化した行（SC-04・SC-05・SC-06 などで使う。画面モックの .group / .row） */
+.sectionTitle {
+  font-size: 13px;
+  color: var(--sub);
+  padding: 18px 20px 6px;
+  margin: 0;
+  font-weight: normal;
+}
+
+.group {
+  background: var(--card);
+  border-radius: var(--radius);
+  margin: 0 16px;
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 16px;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  color: var(--sub);
+  width: 88px;
+  flex-shrink: 0;
+  font-size: 15px;
+}
+
+.value {
+  flex: 1;
+  text-align: right;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.empty {
+  color: var(--placeholder);
+}
+
+.chev {
+  color: var(--placeholder);
+  display: flex;
+}

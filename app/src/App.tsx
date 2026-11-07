@@ -9,6 +9,8 @@ import {
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { GlobalOverlays } from "./components/GlobalOverlays";
 import { TabBar } from "./components/TabBar";
+import { ItemDetailScreen } from "./screens/ItemDetailScreen/ItemDetailScreen";
+import { ItemFormScreen } from "./screens/ItemFormScreen/ItemFormScreen";
 import { ItemListScreen } from "./screens/ItemListScreen/ItemListScreen";
 import { PlaceholderScreen } from "./screens/PlaceholderScreen";
 import type { InitialState } from "./services/appInitializer";
@@ -36,17 +38,11 @@ export function AppRoutes() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<ItemListScreen />} />
-        <Route
-          path="/items/new"
-          element={<PlaceholderScreen title="アイテム登録" />}
-        />
-        <Route
-          path="/items/:itemId"
-          element={<PlaceholderScreen title="アイテム詳細" />}
-        />
+        <Route path="/items/new" element={<ItemFormScreen />} />
+        <Route path="/items/:itemId" element={<ItemDetailScreen />} />
         <Route
           path="/items/:itemId/edit"
-          element={<PlaceholderScreen title="アイテム編集" />}
+          element={<ItemFormScreen key="edit" />}
         />
         <Route path="/settings" element={<PlaceholderScreen title="設定" />} />
         <Route
