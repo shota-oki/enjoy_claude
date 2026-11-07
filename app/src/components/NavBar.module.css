@@ -1,0 +1,46 @@
+.navbar {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 55%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  font-size: 17px;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.side {
+  display: flex;
+  align-items: center;
+  min-width: 44px;
+}
+
+.button {
+  color: var(--accent);
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px;
+  min-height: 44px;
+}
+
+.button:disabled {
+  color: var(--sub);
+}
+
+.bold {
+  font-weight: 600;
+}

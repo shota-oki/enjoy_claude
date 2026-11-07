@@ -1,0 +1,100 @@
+/* 選択部品（チップ・季節の4択・色見本）。SC-01・SC-02・SC-05 で使う */
+.chip {
+  flex-shrink: 0;
+  max-width: 220px;
+  padding: 7px 14px;
+  border-radius: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chipCount {
+  color: var(--sub);
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+}
+
+.chip[aria-pressed="true"] .chipCount {
+  color: #c7c7cc;
+}
+
+.small {
+  padding: 5px 12px;
+  font-size: 13px;
+}
+
+.small[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.zero {
+  color: #b0b0b5;
+}
+
+.wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.seg {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.seg button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  height: 38px;
+  font-size: 15px;
+  background: var(--card);
+}
+
+.seg button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px 4px;
+}
+
+.colorOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--sub);
+  padding: 4px 0;
+}
+
+.colorOption > span:first-child {
+  border-radius: 50%;
+}
+
+.colorOption[aria-pressed="true"] {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.colorOption[aria-pressed="true"] > span:first-child {
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px var(--accent);
+}

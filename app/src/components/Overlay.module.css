@@ -1,0 +1,236 @@
+/* シート・アクションシート・ダイアログ・トースト（共通仕様 4章、画面モック） */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 40;
+}
+
+.dialogBackdrop {
+  composes: backdrop;
+  z-index: 50;
+}
+
+@keyframes up {
+  from {
+    transform: translateY(40px);
+    opacity: 0.5;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ---------- ボトムシート ---------- */
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 85%;
+  background: var(--bg);
+  border-radius: 14px 14px 0 0;
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  animation: up 0.2s ease-out;
+  touch-action: pan-y;
+}
+
+.grip {
+  width: 36px;
+  height: 5px;
+  border-radius: 3px;
+  background: #c7c7cc;
+  margin: 8px auto 0;
+  flex-shrink: 0;
+}
+
+.sheetHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  flex-shrink: 0;
+}
+
+.sheetTitle {
+  font-weight: 600;
+  font-size: 17px;
+  margin: 0;
+}
+
+.sheetHeadButton {
+  color: var(--accent);
+  font-size: 16px;
+  padding: 8px 4px;
+  min-width: 64px;
+}
+
+.sheetHeadButton:last-child {
+  text-align: right;
+}
+
+.sheetBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 12px;
+}
+
+.sheetFoot {
+  flex-shrink: 0;
+  padding: 10px 16px calc(14px + var(--safe-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.primaryButton {
+  width: 100%;
+  height: 50px;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.primaryButton:disabled {
+  opacity: 0.45;
+}
+
+/* ---------- アクションシート ---------- */
+.actions {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: calc(8px + var(--safe-bottom));
+  z-index: 41;
+  animation: up 0.2s ease-out;
+}
+
+.actionBox {
+  background: rgba(250, 250, 250, 0.98);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.actionHead {
+  text-align: center;
+  color: var(--sub);
+  font-size: 13px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  margin: 0;
+  font-weight: normal;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 56px;
+  font-size: 18px;
+  color: var(--accent);
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+
+.actionButton:last-child {
+  border-bottom: none;
+}
+
+.destructive {
+  color: var(--danger);
+}
+
+.check {
+  position: absolute;
+  right: 18px;
+  display: flex;
+}
+
+.actionCancel {
+  margin-top: 8px;
+  width: 100%;
+  height: 56px;
+  background: #fff;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* ---------- ダイアログ ---------- */
+.dialog {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  background: rgba(250, 250, 250, 0.98);
+  border-radius: 14px;
+  z-index: 51;
+  text-align: center;
+  overflow: hidden;
+}
+
+.dialogBody {
+  padding: 20px 16px 16px;
+}
+
+.dialogTitle {
+  font-weight: 600;
+  font-size: 17px;
+  margin: 0;
+}
+
+.dialogMessage {
+  font-size: 13px;
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
+.dialogButtons {
+  display: flex;
+  border-top: 1px solid var(--line);
+}
+
+.dialogButton {
+  flex: 1;
+  height: 46px;
+  font-size: 17px;
+  color: var(--accent);
+}
+
+.dialogButton + .dialogButton {
+  border-left: 1px solid var(--line);
+}
+
+.dialogButton:disabled {
+  color: var(--placeholder);
+}
+
+.bold {
+  font-weight: 600;
+}
+
+/* ---------- トースト ---------- */
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--tabbar-height) + var(--safe-bottom) + 40px);
+  transform: translateX(-50%);
+  max-width: calc(100% - 32px);
+  background: rgba(28, 28, 30, 0.92);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  line-height: 1.4;
+  z-index: 60;
+  text-align: center;
+  pointer-events: none;
+}

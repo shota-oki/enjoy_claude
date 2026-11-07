@@ -1,0 +1,23 @@
+.tabbar {
+  flex-shrink: 0;
+  height: calc(var(--tabbar-height) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: rgba(249, 249, 249, 0.96);
+  border-top: 1px solid var(--line);
+  display: flex;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 10px;
+  color: var(--sub);
+}
+
+.active {
+  color: var(--accent);
+}
