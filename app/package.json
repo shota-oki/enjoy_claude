@@ -17,7 +17,9 @@
     "coverage": "vitest run --coverage",
     "lint": "eslint .",
     "typecheck": "tsc -b --noEmit",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "seed:sample": "vite --host --mode sample",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "dexie": "^4.4.7",

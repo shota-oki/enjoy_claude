@@ -94,3 +94,10 @@ textarea {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* 確認用データ作成中の表示（npm run seed:sample のときだけ使う） */
+.sample-progress {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--sub);
+}

@@ -1,0 +1,34 @@
+.banner {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 12px 8px;
+  padding: 8px 8px 8px 14px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 10px;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.text {
+  flex: 1;
+}
+
+.update {
+  background: #fff;
+  color: var(--accent);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 6px 14px;
+}
+
+.update:disabled {
+  opacity: 0.6;
+}
+
+.close {
+  color: rgba(255, 255, 255, 0.85);
+  padding: 6px;
+}

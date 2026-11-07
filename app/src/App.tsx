@@ -9,6 +9,7 @@ import {
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { GlobalOverlays } from "./components/GlobalOverlays";
 import { TabBar } from "./components/TabBar";
+import { UpdateBanner } from "./components/UpdateBanner";
 import { ItemDetailScreen } from "./screens/ItemDetailScreen/ItemDetailScreen";
 import { ItemFormScreen } from "./screens/ItemFormScreen/ItemFormScreen";
 import { ItemListScreen } from "./screens/ItemListScreen/ItemListScreen";
@@ -72,6 +73,8 @@ function Layout() {
       <ErrorBoundary>
         <Outlet />
       </ErrorBoundary>
+      {/* 更新の案内は SC-05 の表示中は出さず、閉じたあとに表示する（M-01 4.3） */}
+      {!isForm && <UpdateBanner />}
       {!isForm && <TabBar />}
       <GlobalOverlays />
     </div>

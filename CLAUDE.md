@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 「洋服管理アプリ（仮称）」の開発リポジトリ。iPhone の Safari で使う PWA で、自分の洋服を写真付きで記録・一覧・絞り込みする。認証・サーバーはなく、データは端末内（IndexedDB）にのみ保存する。
 
-ウォーターフォール型で進めており、要件定義〜設計はすべて合意済み。現在は実装フェーズ（アプリのソースコードは `app/` に作成予定、まだ未作成）。
+ウォーターフォール型で進めており、要件定義〜設計はすべて合意済み。現在は実装フェーズ（アプリのソースコードは `app/`、GitHub Actions の定義は `.github/workflows/`、公開手順は `docs/04_release/リリース手順書.md`）。
 
 ## まず読むもの
 
@@ -19,7 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 TypeScript + React + Vite / Dexie.js（IndexedDB）・dexie-react-hooks / vite-plugin-pwa / React Router（HashRouter）/ CSS Modules / Vitest + React Testing Library + fake-indexeddb。GitHub Pages に GitHub Actions で公開（版のタグ付け時）。
 
-## 開発コマンド（`app/` で実行。方式設計書 M-02 で定義、実装時に作成）
+## 開発コマンド（`app/` で実行。方式設計書 M-02）
 
 | コマンド | 内容 |
 |---------|------|
@@ -28,7 +28,8 @@ TypeScript + React + Vite / Dexie.js（IndexedDB）・dexie-react-hooks / vite-p
 | `npm run build` / `npm run preview:lan` | 本番ビルド / ビルド結果を iPhone で確認（PWA・オフライン確認用） |
 | `npm run test` | 単体・結合テスト |
 | `npm run lint` / `npm run typecheck` / `npm run format` | ESLint / 型チェック / Prettier |
-| `npm run seed:sample` | 確認用データ300件の作成 |
+| `npm run seed:sample` | 確認用データ300件を作る開発サーバーを起動（iPhone で開くと作成される） |
+| `npm run icons` | ホーム画面のアイコン（`public/`）を作り直す |
 
 ## 作業時のルール
 

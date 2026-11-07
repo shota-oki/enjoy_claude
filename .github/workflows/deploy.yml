@@ -1,0 +1,79 @@
+# 公開（方式設計書 M-03 4.2）：main のコミットに版のタグ（v1.0.0 など）を付けたとき
+# 公開をやり直すとき（M-03 5章）は、Actions の画面から「公開」を手動実行し、
+# 「Use workflow from」で公開したい版のタグを選ぶ
+name: 公開
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 公開処理は同時に1つだけ実行する
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: app/.nvmrc
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: 版のタグから実行されていることを確認
+        if: github.ref_type != 'tag'
+        run: |
+          echo "版のタグ（v1.0.0 など）を選んで実行してください"
+          exit 1
+      - name: タグと package.json の版数が一致することを確認
+        run: |
+          expected="v$(node -p "require('./package.json').version")"
+          if [ "$GITHUB_REF_NAME" != "$expected" ]; then
+            echo "タグ（$GITHUB_REF_NAME）と package.json の版数（$expected）が一致しません"
+            exit 1
+          fi
+      - name: タグのコミットが main に含まれることを確認
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "タグのコミットが main に含まれていません"
+            exit 1
+          fi
+
+      - run: npm ci
+      - name: 本番で使うパッケージの脆弱性を確認
+        run: npm audit --omit=dev
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test
+      - name: ビルド（公開URLに合わせたパスを設定）
+        run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: app/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

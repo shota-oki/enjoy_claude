@@ -42,11 +42,12 @@ export default defineConfig(({ mode }) => ({
     react(),
     cspPlugin,
     // iPhone 実機確認用に HTTPS で公開する（M-02 5章）
-    ...(mode === "lan" ? [basicSsl()] : []),
+    // seed:sample も iPhone で開けるよう HTTPS にする
+    ...(mode === "lan" || mode === "sample" ? [basicSsl()] : []),
     VitePWA({
       // 新しい版は利用者が「更新」を押したときに切り替える（M-01 4章）
       registerType: "prompt",
-      includeAssets: ["apple-touch-icon.png"],
+      includeAssets: ["apple-touch-icon.png", "icon-192.png", "icon-512.png"],
       manifest: {
         name: "洋服管理",
         short_name: "クローゼット",
