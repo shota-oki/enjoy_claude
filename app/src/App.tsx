@@ -12,7 +12,9 @@ import { TabBar } from "./components/TabBar";
 import { ItemDetailScreen } from "./screens/ItemDetailScreen/ItemDetailScreen";
 import { ItemFormScreen } from "./screens/ItemFormScreen/ItemFormScreen";
 import { ItemListScreen } from "./screens/ItemListScreen/ItemListScreen";
-import { PlaceholderScreen } from "./screens/PlaceholderScreen";
+import { CategorySelectScreen } from "./screens/CategorySelectScreen/CategorySelectScreen";
+import { SettingsScreen } from "./screens/SettingsScreen/SettingsScreen";
+import { SubcategoryEditScreen } from "./screens/SubcategoryEditScreen/SubcategoryEditScreen";
 import type { InitialState } from "./services/appInitializer";
 import { ListStateProvider } from "./state/ListStateContext";
 import { UiProvider } from "./state/UiContext";
@@ -44,14 +46,14 @@ export function AppRoutes() {
           path="/items/:itemId/edit"
           element={<ItemFormScreen key="edit" />}
         />
-        <Route path="/settings" element={<PlaceholderScreen title="設定" />} />
+        <Route path="/settings" element={<SettingsScreen />} />
         <Route
           path="/settings/subcategories"
-          element={<PlaceholderScreen title="サブカテゴリ管理" />}
+          element={<CategorySelectScreen />}
         />
         <Route
           path="/settings/subcategories/:categoryId"
-          element={<PlaceholderScreen title="サブカテゴリ編集" />}
+          element={<SubcategoryEditScreen />}
         />
         {/* 存在しないURLは SC-01 へ */}
         <Route path="*" element={<Navigate to="/" replace />} />

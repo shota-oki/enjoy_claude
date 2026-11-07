@@ -1,0 +1,58 @@
+.largeTitle {
+  font-size: 32px;
+  margin: 0;
+  padding: 0 16px 4px;
+  letter-spacing: 0.01em;
+}
+
+.link {
+  width: 100%;
+  text-align: left;
+}
+
+.linkLabel {
+  flex: 1;
+}
+
+.infoLabel {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+/* 「データの永続保存」行と案内文を1つの区切りにまとめる */
+.infoRowWrap {
+  border-bottom: 1px solid var(--line);
+}
+
+.infoRowWrap > div {
+  border-bottom: none;
+}
+
+.persistNote {
+  font-size: 12px;
+  color: var(--sub);
+  margin: -4px 16px 0;
+  padding-bottom: 10px;
+  text-align: right;
+}
+
+.note {
+  font-size: 12px;
+  color: var(--sub);
+  line-height: 1.6;
+  padding: 10px 20px 40px;
+  margin: 0;
+}
+
+.categoryIcon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+}
+
+.notice {
+  font-size: 12px;
+  color: var(--sub);
+  padding: 10px 20px 40px;
+  margin: 0;
+}
