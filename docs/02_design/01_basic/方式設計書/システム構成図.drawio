@@ -1,0 +1,90 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="system" name="システム構成図">
+    <mxGraphModel dx="1300" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1300" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- 開発環境 -->
+        <mxCell id="gDev" value="開発環境（Windows PC）" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f8fafc;dashed=1;strokeColor=#9aa5b1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontColor=#555555;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="30" y="30" width="300" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="vscode" value="&lt;b&gt;VS Code＋Claude Code&lt;/b&gt;&lt;br&gt;ソースコード・設計書の編集" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="75" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="node" value="&lt;b&gt;Node.js（Vite・Vitest）&lt;/b&gt;&lt;br&gt;開発サーバー・テスト・ビルド" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="160" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="git" value="&lt;b&gt;Git（ローカルリポジトリ）&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="60" y="245" width="240" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- GitHub -->
+        <mxCell id="gGh" value="GitHub" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f8fafc;dashed=1;strokeColor=#9aa5b1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontColor=#555555;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="420" y="30" width="330" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="repo" value="&lt;b&gt;リポジトリ&lt;/b&gt;&lt;br&gt;ソースコード（app/）・設計書（docs/）" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#2b5f8e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="450" y="75" width="270" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="actions" value="&lt;b&gt;GitHub Actions&lt;/b&gt;&lt;br&gt;検査・テスト・ビルド・公開（M-03）" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#2b5f8e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="450" y="160" width="270" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="pages" value="&lt;b&gt;GitHub Pages（HTTPS）&lt;/b&gt;&lt;br&gt;アプリ本体の静的ファイルのみを配信" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#2b5f8e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="450" y="245" width="270" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- iPhone -->
+        <mxCell id="gPhone" value="利用者のiPhone（iOS Safari・ホーム画面に追加したPWA）" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f8fafc;dashed=1;strokeColor=#9aa5b1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=4;fontStyle=1;fontColor=#555555;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="840" y="30" width="420" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="sw" value="&lt;b&gt;Service Worker＋キャッシュ&lt;/b&gt;&lt;br&gt;アプリ本体を保存し、オフラインで起動&lt;br&gt;新しい版の確認・切り替え（M-01）" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="870" y="75" width="360" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="app" value="&lt;b&gt;アプリ（React）&lt;/b&gt;&lt;br&gt;画面・処理（画面詳細設計書・処理設計書）" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="870" y="180" width="360" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="idb" value="&lt;b&gt;IndexedDB（closet-app）&lt;/b&gt;&lt;br&gt;アイテム・写真・サブカテゴリ・設定（DB設計書）&lt;br&gt;※ このiPhoneの中だけに保存" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="870" y="275" width="230" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="cam" value="&lt;b&gt;カメラ・写真ライブラリ&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="290" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="note" value="アプリのデータは外部に送信しない。&lt;br&gt;インターネット接続が必要なのは、初回の読み込みと新しい版の取得時のみ。" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="870" y="385" width="370" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- 矢印 -->
+        <mxCell id="e1" value="push・タグ付け" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;strokeColor=#555555;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="git" target="repo">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="370" y="267" /><mxPoint x="370" y="102" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="タグ付けで起動" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;strokeColor=#555555;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="repo" target="actions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="公開" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;strokeColor=#555555;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="actions" target="pages">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="HTTPSで取得&lt;br&gt;（初回・更新時のみ）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;strokeColor=#2b5f8e;fontColor=#2b5f8e;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="pages" target="sw">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="795" y="272" /><mxPoint x="795" y="110" /></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="起動" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;strokeColor=#555555;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="sw" target="app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="読み書き" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;endFill=1;startArrow=block;startFill=1;labelBackgroundColor=#ffffff;strokeColor=#555555;exitX=0.3;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="app" target="idb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="写真の取得" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;endFill=1;labelBackgroundColor=#ffffff;strokeColor=#555555;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.85;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="cam" target="app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="実機確認（同じWi-Fi・HTTPS、M-02）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=11;endArrow=block;endFill=1;dashed=1;labelBackgroundColor=#ffffff;strokeColor=#999999;fontColor=#777777;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="gDev" target="gPhone">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="180" y="500" /><mxPoint x="1050" y="500" /></Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

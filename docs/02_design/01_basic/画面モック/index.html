@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>洋服管理アプリ 画面モック v0.1</title>
+<title>洋服管理アプリ 画面モック v0.2</title>
 <style>
   :root {
     --bg: #f2f2f7;
@@ -178,6 +178,10 @@
   .form .row.col .label { width: auto; }
   .yen { color: var(--sub); }
   .err { color: var(--danger); font-size: 12px; padding: 4px 20px 0; }
+  .err.in { padding: 0 16px 8px; margin-top: -4px; border-bottom: 1px solid var(--line); }
+  .primary-btn:disabled { opacity: .45; }
+  .dialog .btns button:disabled { color: #c4c4c7; }
+  .sub-note { font-size: 12px; color: var(--sub); padding: 0 16px 10px; margin-top: -4px; }
   .row.has-err .label { color: var(--danger); }
   .photo-strip { display: flex; gap: 10px; overflow-x: auto; padding: 4px 16px 4px; scrollbar-width: none; }
   .photo-strip::-webkit-scrollbar { display: none; }
@@ -295,10 +299,10 @@ const SORTS = [
 ];
 const SCREENS = {
   'SC-01': { name: 'アイテム一覧', desc: '起動時のホーム画面。上段のカテゴリ、下段のサブカテゴリのチップで素早く切り替える。色・季節・ブランドは絞り込みシート（SC-02）、並び順は並び替えシート（SC-03）で指定。右下の＋から登録（SC-05）。' },
-  'SC-02': { name: '絞り込み', desc: '一覧の上に重なるボトムシート。ベースカラー・季節・ブランドを複数選択し、該当件数を確認してから適用する。カテゴリ・サブカテゴリは一覧上部のチップで指定する。' },
+  'SC-02': { name: '絞り込み', desc: '一覧の上に重なるボトムシート。ベースカラー・季節・ブランドを複数選択し、該当件数を確認してから適用する。該当0件の条件では適用ボタンを押せない。カテゴリ・サブカテゴリは一覧上部のチップで指定する。' },
   'SC-03': { name: '並び替え', desc: '一覧の上に重なるアクションシート。登録日・購入日・購入金額・名前で並び替える。購入日・金額が未入力のアイテムは末尾に表示。' },
   'SC-04': { name: 'アイテム詳細', desc: '写真を左右スワイプで切り替え、全項目を表示。右上の「編集」でSC-05（編集モード）へ。最下部から削除（確認ダイアログあり）。' },
-  'SC-05': { name: 'アイテム登録・編集', desc: '登録と編集で共通のフォーム。写真は1枚以上必須・最大10枚。先頭が代表写真で、写真タップで代表変更・削除。必須: 写真／名前／カテゴリ／ベースカラー。未保存で閉じると破棄確認。' },
+  'SC-05': { name: 'アイテム登録・編集', desc: '登録と編集で共通のフォーム。写真は1枚以上必須・最大10枚。先頭が代表写真で、写真タップで代表変更・削除。必須: 写真／名前／カテゴリ／ベースカラー。未保存で閉じると破棄確認。一覧でカテゴリを選択中に＋を押すと、そのカテゴリが初期値になる。モックでは「フォトライブラリから選択」で3枚選んだ扱いになる。' },
   'SC-06': { name: '設定', desc: 'サブカテゴリ管理への導線と、アプリ情報（バージョン・保存容量・永続ストレージ状態）を表示。' },
   'SC-07': { name: 'サブカテゴリ管理（カテゴリ選択）', desc: '固定カテゴリの一覧。編集したいカテゴリを選んでSC-08へ。カテゴリ自体は変更できない。' },
   'SC-08': { name: 'サブカテゴリ編集', desc: '選択カテゴリのサブカテゴリを追加・名称変更・削除・並び替え。同一カテゴリ内の重複名は不可。アイテムが登録されているサブカテゴリは削除不可。' },
@@ -335,6 +339,8 @@ function sampleItems(subs) {
     ['黒のショルダーバッグ', 'bag', 'ショルダーバッグ', 'black', 'Step Lab', '', '2026-01-10', 8800, 'オンラインストア', ['春','夏','秋','冬'], 'ナイロン', '', '', 1],
     ['ネイビーのキャップ', 'hat', 'キャップ', 'navy', 'North Ridge', 'F', '2025-07-03', 4400, 'アウトドアショップ', ['春','夏'], '綿100%', '手洗い', '', 1],
     ['茶色のレザーベルト', 'acc', 'ベルト', 'brown', 'Crafton', '', '2021-02-14', 9900, '百貨店', ['春','夏','秋','冬'], '牛革', '', '', 1],
+    ['グレーのネックウォーマー', 'other', '', 'gray', 'North Ridge', 'F', '2025-12-05', 3300, 'アウトドアショップ', ['冬'], 'フリース', '洗濯機可', 'サブカテゴリ未設定の例', 1],
+    ['白のポケットTシャツ', 'tops', '', 'white', '', 'L', '', 0, '', ['夏'], '', '', 'サブカテゴリ未設定・購入金額0円の例', 1],
   ];
   const base = new Date('2026-11-01T10:00:00').getTime();
   return raw.map((r, i) => ({
@@ -410,8 +416,16 @@ function shade(hex, pct) {
 /* =========================================================
    ナビゲーション
    ========================================================= */
-function go(name, params = {}) { state.stack.push({ name, ...params }); state.sheet = null; render(true); }
-function back() { if (state.stack.length > 1) state.stack.pop(); render(true); }
+function go(name, params = {}) {
+  if (cur().name === 'SC-01') state.listScroll = $app.querySelector('.content')?.scrollTop || 0;
+  state.stack.push({ name, ...params }); state.sheet = null; render(true);
+}
+function back() {
+  if (state.stack.length > 1) state.stack.pop();
+  if (cur().name === 'SC-01') state.restoreListScroll = true;
+  state.reorder = false;
+  render(true);
+}
 function tab(name) { state.stack = [{ name }]; state.reorder = false; render(true); }
 function toast(msg) { state.toast = { msg, t: Date.now() }; }
 
@@ -421,7 +435,7 @@ function toast(msg) { state.toast = { msg, t: Date.now() }; }
 function applyFilter(items, f, ignore = {}) {
   return items.filter(i =>
     (ignore.cat || !f.catId || i.catId === f.catId) &&
-    (ignore.sub || !f.subId || i.subId === f.subId) &&
+    (ignore.sub || !f.subId || (f.subId === '__none__' ? !i.subId : i.subId === f.subId)) &&
     (!f.colors.length || f.colors.includes(i.colorId)) &&
     (!f.seasons.length || f.seasons.some(s => i.seasons.includes(s))) &&
     (!f.brands.length || f.brands.includes(i.brand)));
@@ -435,19 +449,22 @@ function sortItems(items) {
     return desc ? cmp(vy, vx) : cmp(vx, vy);
   };
   const num = (p, q) => p - q, str = (p, q) => String(p).localeCompare(String(q), 'ja');
+  const tie = cmp => (x, y) => cmp(x, y) || (y.createdAt - x.createdAt);
   switch (state.sort) {
     case 'created_desc': return a.sort((x, y) => y.createdAt - x.createdAt);
     case 'created_asc':  return a.sort((x, y) => x.createdAt - y.createdAt);
-    case 'buy_desc':     return a.sort(last(i => i.buyDate, true, str));
-    case 'buy_asc':      return a.sort(last(i => i.buyDate, false, str));
-    case 'price_desc':   return a.sort(last(i => i.price, true, num));
-    case 'price_asc':    return a.sort(last(i => i.price, false, num));
-    case 'name_asc':     return a.sort((x, y) => str(x.name, y.name));
+    case 'buy_desc':     return a.sort(tie(last(i => i.buyDate, true, str)));
+    case 'buy_asc':      return a.sort(tie(last(i => i.buyDate, false, str)));
+    case 'price_desc':   return a.sort(tie(last(i => i.price, true, num)));
+    case 'price_asc':    return a.sort(tie(last(i => i.price, false, num)));
+    case 'name_asc':     return a.sort(tie((x, y) => jaCompare(x.name, y.name)));
   }
   return a;
 }
 const extraFilterCount = f => f.colors.length + f.seasons.length + f.brands.length;
-const brands = () => [...new Set(state.items.map(i => i.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ja'));
+/* 名前順：五十音順、英字で始まるものは日本語の後 */
+const jaCompare = (a, b) => { const ea = /^[\x00-\x7F]/.test(a), eb = /^[\x00-\x7F]/.test(b); return ea !== eb ? (ea ? 1 : -1) : a.localeCompare(b, 'ja'); };
+const brands = () => [...new Set(state.items.map(i => i.brand).filter(Boolean))].sort(jaCompare);
 
 /* =========================================================
    画面描画
@@ -462,6 +479,8 @@ function tabbar(active) {
 function renderList() {
   const f = state.filter;
   const all = state.items;
+  const bl = brands();
+  f.brands = f.brands.filter(b => bl.includes(b));   // 該当アイテムがなくなったブランドは条件から外す
   const shown = sortItems(applyFilter(all, f));
   const filtered = f.catId || f.subId || extraFilterCount(f);
   const cnt = extraFilterCount(f);
@@ -473,12 +492,15 @@ function renderList() {
     })).join('');
 
   let subChips = '';
-  if (f.catId && state.subs[f.catId].length) {
+  const hasUnset = f.catId && all.some(i => i.catId === f.catId && !i.subId);
+  if (f.catId && (state.subs[f.catId].length || hasUnset)) {
     const base = applyFilter(all, f, { sub: true });
+    const unsetN = base.filter(i => !i.subId).length;
     subChips = `<div class="chips">
       <button class="chip small ${!f.subId ? 'on' : ''}" data-action="sub" data-id="">すべて</button>
       ${state.subs[f.catId].map(s => { const n = base.filter(i => i.subId === s.id).length;
         return `<button class="chip small ${f.subId === s.id ? 'on' : ''} ${n ? '' : 'zero'}" data-action="sub" data-id="${s.id}">${esc(s.name)}<span class="n">${n}</span></button>`; }).join('')}
+      ${hasUnset ? `<button class="chip small ${f.subId === '__none__' ? 'on' : ''} ${unsetN ? '' : 'zero'}" data-action="sub" data-id="__none__">未設定<span class="n">${unsetN}</span></button>` : ''}
     </div>`;
   }
 
@@ -559,20 +581,33 @@ function renderDetail() {
     ${tabbar('closet')}`;
 }
 
+/* 「変更あり」の判定は、画面表示時の内容との比較で行う（入力して元に戻した場合は変更なし） */
+const FORM_KEYS = ['photos', 'name', 'catId', 'subId', 'colorId', 'brand', 'size', 'buyDate', 'price', 'shop', 'seasons', 'material', 'wash', 'memo'];
+const snapshot = f => JSON.stringify(FORM_KEYS.map(k => k === 'photos' ? f.photos.map(p => p.id) : k === 'seasons' ? SEASONS.filter(s => f.seasons.includes(s)) : f[k]));
+const isDirty = f => snapshot(f) !== f.initial;
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+
 function blankForm() {
-  return { mode: 'new', id: null, photos: [], name: '', catId: '', subId: '', colorId: '', brand: '', size: '', buyDate: '', price: '', shop: '', seasons: [], material: '', wash: '', memo: '', errors: {}, dirty: false };
+  const fl = state.filter;   // 一覧で選択中のカテゴリ・サブカテゴリを初期値にする
+  const f = { mode: 'new', id: null, photos: [], name: '', catId: fl.catId || '', subId: (fl.catId && fl.subId && fl.subId !== '__none__') ? fl.subId : '',
+    colorId: '', brand: '', size: '', buyDate: '', price: '', shop: '', seasons: [], material: '', wash: '', memo: '', errors: {} };
+  f.initial = snapshot(f);
+  return f;
 }
 function formFromItem(i) {
-  return { mode: 'edit', id: i.id, photos: i.photos.map(p => ({ ...p })), name: i.name, catId: i.catId, subId: i.subId, colorId: i.colorId, brand: i.brand, size: i.size,
-    buyDate: i.buyDate, price: i.price == null ? '' : String(i.price), shop: i.shop, seasons: [...i.seasons], material: i.material, wash: i.wash, memo: i.memo, errors: {}, dirty: false };
+  const f = { mode: 'edit', id: i.id, photos: i.photos.map(p => ({ ...p })), name: i.name, catId: i.catId, subId: i.subId, colorId: i.colorId, brand: i.brand, size: i.size,
+    buyDate: i.buyDate, price: i.price == null ? '' : String(i.price), shop: i.shop, seasons: [...i.seasons], material: i.material, wash: i.wash, memo: i.memo, errors: {} };
+  f.initial = snapshot(f);
+  return f;
 }
 
 function renderForm() {
   const f = state.form;
   const e = f.errors;
+  const err = k => e[k] ? `<div class="err in">${e[k]}</div>` : '';
   const txt = (key, label, ph, opt = {}) => `
     <div class="row ${e[key] ? 'has-err' : ''}"><span class="label">${label}${opt.req ? '<span class="req">必須</span>' : ''}</span>
-      ${opt.prefix || ''}<input type="text" data-field="${key}" value="${esc(f[key])}" placeholder="${ph}" ${opt.list ? `list="${opt.list}"` : ''} ${opt.mode ? `inputmode="${opt.mode}"` : ''} maxlength="${opt.max || 100}"></div>`;
+      ${opt.prefix || ''}<input type="text" data-field="${key}" value="${esc(f[key])}" placeholder="${ph}" ${opt.list ? `list="${opt.list}"` : ''} ${opt.mode ? `inputmode="${opt.mode}"` : ''} maxlength="${opt.max || 100}"></div>${err(key)}`;
   const subs = f.catId ? state.subs[f.catId] : [];
   return `
     <div class="navbar">
@@ -595,7 +630,7 @@ function renderForm() {
           <select data-field="catId" class="${f.catId ? '' : 'placeholder'}">
             <option value="" ${f.catId ? '' : 'selected'}>選択してください</option>
             ${CATEGORIES.map(c => `<option value="${c.id}" ${f.catId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
-          </select><span class="chev">${ICON.chev}</span></div>
+          </select><span class="chev">${ICON.chev}</span></div>${err('catId')}
         <div class="row"><span class="label">サブカテゴリ</span>
           <select data-field="subId" class="${f.subId ? '' : 'placeholder'}" ${f.catId && subs.length ? '' : 'disabled'}>
             <option value="">${!f.catId ? '先にカテゴリを選択' : subs.length ? '未選択' : 'なし'}</option>
@@ -603,16 +638,15 @@ function renderForm() {
           </select><span class="chev">${ICON.chev}</span></div>
         <div class="row col ${e.colorId ? 'has-err' : ''}"><span class="label">ベースカラー<span class="req">必須</span></span>
           <div class="color-grid">${COLORS.map(c => `<button class="color-opt ${f.colorId === c.id ? 'on' : ''}" data-action="pickColor" data-id="${c.id}"><span class="swatch" style="${swatchStyle(c)}"></span>${c.name}</button>`).join('')}</div>
-        </div>
+        </div>${err('colorId')}
         <div class="row col"><span class="label">季節（複数選択可）</span>
           <div class="seg">${SEASONS.map(s => `<button class="${f.seasons.includes(s) ? 'on' : ''}" data-action="toggleSeason" data-s="${s}">${s}</button>`).join('')}</div>
         </div>
       </div>
-      ${['name', 'catId', 'colorId'].filter(k => e[k]).map(k => `<div class="err">${e[k]}</div>`).join('')}
 
       <div class="section-title">詳細情報</div>
       <div class="group">
-        ${txt('brand', 'ブランド', '例: Plain Works', { list: 'brandList' })}
+        ${txt('brand', 'ブランド', '例: Plain Works', { list: 'brandList', max: 50 })}
         ${txt('size', 'サイズ', '例: M、W32、27.0cm', { max: 20 })}
         ${txt('material', '素材', '例: 綿100%')}
         ${txt('wash', '洗濯方法', '例: 手洗い')}
@@ -621,11 +655,10 @@ function renderForm() {
 
       <div class="section-title">購入情報</div>
       <div class="group">
-        <div class="row"><span class="label">購入日</span><input type="date" data-field="buyDate" value="${esc(f.buyDate)}"></div>
-        ${txt('price', '購入金額', '0', { prefix: '<span class="yen">¥</span>', mode: 'numeric', max: 9 })}
+        <div class="row ${e.buyDate ? 'has-err' : ''}"><span class="label">購入日</span><input type="date" data-field="buyDate" value="${esc(f.buyDate)}" max="${today()}"></div>${err('buyDate')}
+        ${txt('price', '購入金額', '0', { prefix: '<span class="yen">¥</span>', mode: 'numeric', max: 7 })}
         ${txt('shop', '購入店舗', '例: 渋谷の直営店')}
       </div>
-      ${e.price ? `<div class="err">${e.price}</div>` : ''}
 
       <div class="section-title">メモ</div>
       <div class="group"><div class="row"><textarea data-field="memo" placeholder="自由に入力できます" maxlength="1000">${esc(f.memo)}</textarea></div></div>
@@ -646,9 +679,10 @@ function renderSettings() {
       <div class="section-title">アプリについて</div>
       <div class="group">
         <div class="row"><span style="flex:1">登録アイテム数</span><span class="value" style="color:var(--sub)">${state.items.length}点</span></div>
-        <div class="row"><span style="flex:1">写真の保存容量</span><span class="value" style="color:var(--sub)">約${used}MB</span></div>
-        <div class="row"><span style="flex:1">データの永続保存</span><span class="value" style="color:var(--sub)">${state.browserMode ? '未許可' : '有効'}</span></div>
-        <div class="row"><span style="flex:1">バージョン</span><span class="value" style="color:var(--sub)">0.1.0</span></div>
+        <div class="row"><span style="flex:1">写真の保存容量</span><span class="value" style="color:var(--sub)">${used < 1 ? '1MB未満' : used >= 1024 ? `約${(used / 1024).toFixed(1)}GB` : `約${used.toFixed(1)}MB`}</span></div>
+        <div class="row" style="${state.browserMode ? 'border-bottom:none' : ''}"><span style="flex:1">データの永続保存</span><span class="value" style="color:var(--sub)">${state.browserMode ? '未許可' : '有効'}</span></div>
+        ${state.browserMode ? '<div class="sub-note" style="border-bottom:1px solid var(--line)">ホーム画面に追加して開くと有効になります。</div>' : ''}
+        <div class="row"><span style="flex:1">バージョン</span><span class="value" style="color:var(--sub)">1.0.0</span></div>
       </div>
       <div class="hint" style="padding:10px 20px">データはこのiPhone内にのみ保存されます。Safariの履歴・Webサイトデータを削除すると、登録したデータも削除されます。</div>
     </div>
@@ -720,7 +754,7 @@ function renderSheet() {
           ${brands().map(b => `<button class="chip small ${t.brands.includes(b) ? 'on' : ''}" data-action="tmpToggle" data-k="brands" data-v="${esc(b)}">${esc(b)}</button>`).join('') || '<span style="color:var(--sub);font-size:13px">登録されたブランドはありません</span>'}
         </div></div>
       </div>
-      <div class="sheet-foot"><button class="primary-btn" data-action="applyFilter" ${n ? '' : 'style="opacity:.5"'}>${n}件を表示</button></div>
+      <div class="sheet-foot"><button class="primary-btn" data-action="applyFilter" ${n ? '' : 'disabled'}>${n ? `${n}件を表示` : '該当するアイテムがありません'}</button></div>
     </div>`;
   }
   if (s.type === 'actions') {
@@ -746,7 +780,7 @@ function renderDialog() {
       ${d.message ? `<div class="m">${esc(d.message)}</div>` : ''}
       ${d.input !== undefined ? `<input type="text" id="dlgInput" data-dialog-input value="${esc(d.input)}" placeholder="${esc(d.placeholder || '')}" maxlength="20">${d.error ? `<div class="e">${esc(d.error)}</div>` : ''}` : ''}
     </div>
-    <div class="btns">${d.buttons.map((b, k) => `<button class="${b.style || ''}" data-action="dialogBtn" data-k="${k}">${esc(b.label)}</button>`).join('')}</div>
+    <div class="btns">${d.buttons.map((b, k) => `<button class="${b.style || ''}" data-action="dialogBtn" data-k="${k}" ${b.primary ? 'data-primary' : ''} ${b.primary && d.input !== undefined && !d.input.trim() ? 'disabled' : ''}>${esc(b.label)}</button>`).join('')}</div>
   </div>`;
 }
 
@@ -760,7 +794,7 @@ function renderPanel() {
   const info = SCREENS[id];
   $panel.innerHTML = `
     <h1>洋服管理アプリ 画面モック</h1>
-    <div class="ver">v0.1（要件定義書 v0.4 準拠）／操作はすべてモック上の仮データで、保存されません</div>
+    <div class="ver">v0.2（画面詳細設計書 準拠）／操作はすべてモック上の仮データで、保存されません</div>
     <div class="current"><span class="id">${id}</span> ${info.name}<p>${info.desc}</p></div>
     <h2>画面一覧（クリックで移動）</h2>
     <ul>${Object.entries(SCREENS).map(([k, v]) => `<li><button class="${k === id ? 'on' : ''}" data-panel="${k}">${k}　${v.name}</button></li>`).join('')}</ul>
@@ -774,7 +808,9 @@ let lastScreenKey = null;
 function render(navigated = false) {
   const prevContent = $app.querySelector('.content');
   const key = JSON.stringify(cur());
-  const scroll = (!navigated && prevContent && key === lastScreenKey) ? prevContent.scrollTop : 0;
+  let scroll = (!navigated && !state.resetScroll && prevContent && key === lastScreenKey) ? prevContent.scrollTop : 0;
+  if (cur().name === 'SC-01' && state.restoreListScroll) scroll = state.listScroll || 0;   // 詳細から戻ったら一覧の位置を復元
+  state.resetScroll = false; state.restoreListScroll = false;
   const stripScroll = $app.querySelector('.photo-strip')?.scrollLeft || 0;
 
   const r = { 'SC-01': renderList, 'SC-04': renderDetail, 'SC-05': renderForm, 'SC-06': renderSettings, 'SC-07': renderCatSelect, 'SC-08': renderSubEdit }[cur().name];
@@ -787,6 +823,11 @@ function render(navigated = false) {
   if (c) c.scrollTop = scroll;
   const strip = $app.querySelector('.photo-strip');
   if (strip && !navigated) strip.scrollLeft = stripScroll;
+  if (state.scrollToError) {   // 入力エラー時は最初のエラー項目までスクロール
+    state.scrollToError = false;
+    const first = $app.querySelector('.has-err, .p-add.err-border');
+    if (first) first.scrollIntoView({ block: 'center' });
+  }
 
   const car = document.getElementById('carousel');
   if (car) car.addEventListener('scroll', () => {
@@ -820,13 +861,14 @@ function saveForm() {
   if (!f.name.trim()) e.name = '名前を入力してください';
   if (!f.catId) e.catId = 'カテゴリを選択してください';
   if (!f.colorId) e.colorId = 'ベースカラーを選択してください';
-  if (f.price !== '' && !/^\d+$/.test(String(f.price).replace(/,/g, ''))) e.price = '購入金額は0以上の整数（円）で入力してください';
+  if (f.price !== '' && !/^\d{1,7}$/.test(f.price)) e.price = '購入金額は0〜9,999,999の整数で入力してください';
+  if (f.buyDate && f.buyDate > today()) e.buyDate = '購入日に未来の日付は指定できません';
   f.errors = e;
-  if (Object.keys(e).length) { toast('入力内容を確認してください'); render(); return; }
+  if (Object.keys(e).length) { toast('入力内容を確認してください'); state.scrollToError = true; render(); return; }
 
   const data = {
     name: f.name.trim(), catId: f.catId, subId: f.subId, colorId: f.colorId, brand: f.brand.trim(), size: f.size.trim(),
-    buyDate: f.buyDate, price: f.price === '' ? null : Number(String(f.price).replace(/,/g, '')), shop: f.shop.trim(),
+    buyDate: f.buyDate, price: f.price === '' ? null : Number(f.price), shop: f.shop.trim(),
     seasons: SEASONS.filter(s => f.seasons.includes(s)), material: f.material.trim(), wash: f.wash.trim(), memo: f.memo, photos: f.photos,
   };
   if (f.mode === 'new') {
@@ -848,19 +890,20 @@ const actions = {
   go: el => { if (el.dataset.to === 'SC-08') state.reorder = false; go(el.dataset.to, el.dataset.cat ? { cat: el.dataset.cat } : {}); },
   back: () => back(),
   open: el => go('SC-04', { id: el.dataset.id }),
-  cat: el => { state.filter.catId = el.dataset.id || null; state.filter.subId = null; render(); },
-  sub: el => { state.filter.subId = el.dataset.id || null; render(); },
-  rmf: el => { const k = el.dataset.k; state.filter[k] = state.filter[k].filter(v => v !== el.dataset.v); render(); },
-  clearExtra: () => { Object.assign(state.filter, { colors: [], seasons: [], brands: [] }); render(); },
-  clearAll: () => { state.filter = emptyFilter(); render(); },
+  cat: el => { const id = el.dataset.id || null; if (id === state.filter.catId) return; state.filter.catId = id; state.filter.subId = null; state.resetScroll = true; render(); },
+  sub: el => { state.filter.subId = el.dataset.id || null; state.resetScroll = true; render(); },
+  rmf: el => { const k = el.dataset.k; state.filter[k] = state.filter[k].filter(v => v !== el.dataset.v); state.resetScroll = true; render(); },
+  clearExtra: () => { Object.assign(state.filter, { colors: [], seasons: [], brands: [] }); state.resetScroll = true; render(); },
+  clearAll: () => { state.filter = emptyFilter(); state.resetScroll = true; render(); },
   closeBanner: () => { state.bannerClosed = true; render(); },
 
   openFilter: () => { state.tmpFilter = JSON.parse(JSON.stringify(state.filter)); state.sheet = { type: 'filter', screen: 'SC-02' }; render(); },
   tmpToggle: el => { const a = state.tmpFilter[el.dataset.k], v = el.dataset.v; const i = a.indexOf(v); i >= 0 ? a.splice(i, 1) : a.push(v); render(); },
   resetTmp: () => { Object.assign(state.tmpFilter, { colors: [], seasons: [], brands: [] }); render(); },
-  applyFilter: () => { state.filter = state.tmpFilter; state.sheet = null; render(); },
+  applyFilter: () => { state.filter = state.tmpFilter; state.sheet = null; state.resetScroll = true; render(); },
   openSort: () => {
-    state.sheet = { type: 'actions', screen: 'SC-03', title: '並び替え', options: SORTS.map(s => ({ label: s.name, checked: state.sort === s.id, fn: () => { state.sort = s.id; } })) };
+    state.sheet = { type: 'actions', screen: 'SC-03', title: '並び替え', options: SORTS.map(s => ({ label: s.name, checked: state.sort === s.id,
+      fn: () => { if (state.sort !== s.id) { state.sort = s.id; state.resetScroll = true; } } })) };
     render();
   },
   closeSheet: () => { state.sheet = null; render(); },
@@ -870,14 +913,21 @@ const actions = {
   edit: el => { state.form = formFromItem(item(el.dataset.id)); go('SC-05'); },
   cancelForm: () => {
     const leave = () => { state.form = null; state.dialog = null; back(); };
-    if (!state.form.dirty) return leave();
+    if (!isDirty(state.form)) return leave();
     openDialog({ title: state.form.mode === 'new' ? '登録を中止しますか？' : '変更を破棄しますか？', message: '入力した内容は保存されません。',
       buttons: [{ label: '入力を続ける', style: 'bold', fn: closeDialog }, { label: '破棄', style: 'destructive', fn: leave }] });
   },
   save: () => saveForm(),
   addPhoto: () => {
-    const add = src => () => { const f = state.form; f.photos.push({ id: uid(), label: src + (f.photos.length + 1) }); f.dirty = true; delete f.errors.photos; };
-    state.sheet = { type: 'actions', screen: 'SC-05', title: '写真を追加', options: [{ label: '写真を撮る', fn: add('撮影') }, { label: 'フォトライブラリから選択', fn: add('ライブラリ') }] };
+    const f = state.form, rest = MAX_PHOTOS - f.photos.length;
+    const add = (src, n) => () => {
+      const k = Math.min(n, MAX_PHOTOS - f.photos.length);
+      for (let j = 0; j < k; j++) f.photos.push({ id: uid(), label: src + (f.photos.length + 1) });
+      delete f.errors.photos;
+      if (k < n) toast(`写真は最大10枚までです。先頭から${k}枚を追加しました`);
+    };
+    state.sheet = { type: 'actions', screen: 'SC-05', title: `写真を追加（あと${rest}枚）`,
+      options: [{ label: '写真を撮る', fn: add('撮影', 1) }, { label: 'フォトライブラリから選択', fn: add('ライブラリ', 3) }] };
     render();
   },
   photoMenu: el => {
@@ -887,7 +937,7 @@ const actions = {
     opts.push({ label: '削除', style: 'destructive', fn: () => {
       if (f.mode === 'edit' && f.photos.length === 1) { toast('写真は1枚以上必要です'); return; }
       f.photos.splice(k, 1); f.dirty = true; } });
-    state.sheet = { type: 'actions', screen: 'SC-05', title: k === 0 ? '代表写真' : `写真 ${k + 1}`, options: opts };
+    state.sheet = { type: 'actions', screen: 'SC-05', title: k === 0 ? '代表写真' : `写真 ${k + 1}枚目`, options: opts };
     render();
   },
   pickColor: el => { state.form.colorId = el.dataset.id; state.form.dirty = true; delete state.form.errors.colorId; render(); },
@@ -904,8 +954,9 @@ const actions = {
   move: el => { const a = state.subs[cur().cat], k = +el.dataset.k, d = +el.dataset.d; [a[k], a[k + d]] = [a[k + d], a[k]]; render(); },
   addSub: () => {
     const catId = cur().cat;
-    openDialog({ title: 'サブカテゴリを追加', message: `${cat(catId).name}に追加します`, input: '', placeholder: '例: ジョガーパンツ',
-      buttons: [{ label: 'キャンセル', fn: closeDialog }, { label: '追加', style: 'bold', fn: () => {
+    if (state.subs[catId].length >= 30) { toast('サブカテゴリは1つのカテゴリにつき30件まで登録できます'); render(); return; }
+    openDialog({ title: 'サブカテゴリを追加', message: `「${cat(catId).name}」に追加します`, input: '', placeholder: '例: ジョガーパンツ',
+      buttons: [{ label: 'キャンセル', fn: closeDialog }, { label: '追加', style: 'bold', primary: true, fn: () => {
         const err = validateSubName(catId, state.dialog.input);
         if (err) { state.dialog.error = err; render(); return; }
         state.subs[catId].push({ id: uid(), name: state.dialog.input.trim() }); state.dialog = null; toast('追加しました'); render(); } }] });
@@ -913,17 +964,20 @@ const actions = {
   renameSub: el => {
     const catId = cur().cat, s = state.subs[catId].find(x => x.id === el.dataset.id);
     openDialog({ title: '名称を変更', message: '登録済みアイテムの表示も変更されます', input: s.name,
-      buttons: [{ label: 'キャンセル', fn: closeDialog }, { label: '変更', style: 'bold', fn: () => {
+      buttons: [{ label: 'キャンセル', fn: closeDialog }, { label: '変更', style: 'bold', primary: true, fn: () => {
+        if (state.dialog.input.trim() === s.name) return closeDialog();   // 名称が変わっていなければ何もしない
         const err = validateSubName(catId, state.dialog.input, s.id);
         if (err) { state.dialog.error = err; render(); return; }
-        s.name = state.dialog.input.trim(); state.dialog = null; toast('変更しました'); render(); } }] });
+        s.name = state.dialog.input.trim(); state.dialog = null; toast('名称を変更しました'); render(); } }] });
   },
   deleteSub: el => {
     const catId = cur().cat, s = state.subs[catId].find(x => x.id === el.dataset.id);
     const n = state.items.filter(i => i.subId === s.id).length;
     if (n) return openDialog({ title: '削除できません', message: `「${s.name}」には${n}点のアイテムが登録されています。アイテムのサブカテゴリを変更してから削除してください。`, buttons: [{ label: 'OK', style: 'bold', fn: closeDialog }] });
     openDialog({ title: `「${s.name}」を削除しますか？`, buttons: [{ label: 'キャンセル', fn: closeDialog }, { label: '削除', style: 'destructive bold', fn: () => {
-      state.subs[catId] = state.subs[catId].filter(x => x.id !== s.id); state.dialog = null; toast('削除しました'); render(); } }] });
+      state.subs[catId] = state.subs[catId].filter(x => x.id !== s.id);
+      if (state.filter.subId === s.id) state.filter.subId = null;   // 一覧で選択中だった場合は「すべて」に戻す
+      state.dialog = null; toast('削除しました'); render(); } }] });
   },
   dialogBtn: el => state.dialog.buttons[+el.dataset.k].fn(),
 };
@@ -935,9 +989,24 @@ $app.addEventListener('click', e => {
 });
 $app.addEventListener('input', e => {
   const t = e.target;
-  if (t.hasAttribute('data-dialog-input')) { state.dialog.input = t.value; return; }
+  if (t.hasAttribute('data-dialog-input')) {
+    state.dialog.input = t.value;
+    const pb = $app.querySelector('.dialog [data-primary]'); if (pb) pb.disabled = !t.value.trim();   // 空の間は確定不可
+    if (state.dialog.error) { state.dialog.error = ''; $app.querySelector('.dialog .e')?.remove(); }
+    return;
+  }
   if (t.dataset.field && t.tagName !== 'SELECT' && state.form) {
-    state.form[t.dataset.field] = t.value; state.form.dirty = true;
+    const k = t.dataset.field;
+    if (k === 'price') {   // 全角数字は半角に変換し、数字以外は入力させない
+      const v = t.value.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/[^0-9]/g, '').slice(0, 7);
+      if (v !== t.value) t.value = v;
+    }
+    state.form[k] = t.value;
+    if (state.form.errors[k]) {   // 修正した時点でエラー表示を消す
+      delete state.form.errors[k];
+      const row = t.closest('.row'); row.classList.remove('has-err');
+      if (row.nextElementSibling?.classList.contains('in')) row.nextElementSibling.remove();
+    }
   }
 });
 $app.addEventListener('change', e => {
@@ -949,7 +1018,7 @@ $app.addEventListener('change', e => {
   }
 });
 $app.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.target.hasAttribute('data-dialog-input')) { const b = state.dialog.buttons; b[b.length - 1].fn(); }
+  if (e.key === 'Enter' && e.target.hasAttribute('data-dialog-input') && state.dialog.input.trim()) { const b = state.dialog.buttons; b[b.length - 1].fn(); }
 });
 
 /* ---------- 説明パネル ---------- */
