@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>洋服管理アプリ 画面モック v0.1</title>
+<style>
+  :root {
+    --bg: #f2f2f7;
+    --card: #ffffff;
+    --text: #1c1c1e;
+    --sub: #8e8e93;
+    --line: #e5e5ea;
+    --accent: #2b5f8e;
+    --accent-weak: #e6eef6;
+    --danger: #d93a2b;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", sans-serif;
+    background: #d9dce1;
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 32px;
+    min-height: 100vh;
+  }
+  button { font: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; }
+  input, select, textarea { font: inherit; color: inherit; }
+
+  /* ---------- 説明パネル（PC表示のみ） ---------- */
+  .panel {
+    width: 340px; background: #fff; border-radius: 16px; padding: 20px 22px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08); position: sticky; top: 32px;
+    max-height: calc(100vh - 64px); overflow-y: auto; font-size: 14px;
+  }
+  .panel h1 { font-size: 17px; margin: 0 0 4px; }
+  .panel .ver { color: var(--sub); font-size: 12px; margin-bottom: 16px; }
+  .panel h2 { font-size: 12px; color: var(--sub); margin: 18px 0 8px; letter-spacing: .05em; }
+  .panel .current { background: var(--accent-weak); border-radius: 10px; padding: 12px 14px; }
+  .panel .current .id { font-weight: 700; color: var(--accent); }
+  .panel .current p { margin: 6px 0 0; line-height: 1.6; }
+  .panel ul { list-style: none; padding: 0; margin: 0; }
+  .panel li button { display: block; width: 100%; text-align: left; padding: 7px 10px; border-radius: 8px; }
+  .panel li button:hover { background: var(--bg); }
+  .panel li button.on { background: var(--accent); color: #fff; }
+  .panel label { display: flex; gap: 8px; align-items: center; padding: 5px 0; cursor: pointer; }
+  .panel .reset { margin-top: 12px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; width: 100%; }
+
+  /* ---------- iPhoneフレーム ---------- */
+  .phone {
+    width: 390px; height: 844px; border-radius: 52px; background: var(--bg);
+    box-shadow: 0 0 0 12px #111, 0 20px 50px rgba(0,0,0,.35);
+    position: relative; overflow: hidden; flex-shrink: 0;
+  }
+  .statusbar {
+    height: 50px; display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 34px 0; font-weight: 600; font-size: 15px; position: relative; z-index: 5;
+  }
+  .statusbar .notch { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); width: 120px; height: 34px; background: #111; border-radius: 20px; }
+  .app { position: absolute; top: 50px; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; }
+
+  @media (max-width: 760px) {
+    body { padding: 0; background: var(--bg); }
+    .panel { display: none; }
+    .phone { width: 100vw; height: 100dvh; border-radius: 0; box-shadow: none; }
+    .statusbar { display: none; }
+    .app { top: env(safe-area-inset-top); }
+  }
+
+  /* ---------- 共通 ---------- */
+  .navbar { height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; flex-shrink: 0; position: relative; }
+  .navbar .title { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 600; font-size: 17px; white-space: nowrap; }
+  .navbar .nav-btn { color: var(--accent); font-size: 17px; display: flex; align-items: center; gap: 2px; padding: 8px; min-width: 44px; }
+  .navbar .nav-btn.bold { font-weight: 600; }
+  .navbar .nav-btn:disabled { color: var(--sub); }
+  .content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+  .large-title { display: flex; align-items: baseline; justify-content: space-between; padding: 0 16px 8px; }
+  .large-title h1 { font-size: 32px; margin: 0; letter-spacing: .01em; }
+  .large-title .count { color: var(--sub); font-size: 14px; }
+  .icon-btn { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; color: var(--accent); position: relative; border-radius: 50%; }
+  .icon-btn .badge { position: absolute; top: 4px; right: 2px; background: var(--danger); color: #fff; font-size: 11px; min-width: 17px; height: 17px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; font-weight: 600; }
+  .section-title { font-size: 13px; color: var(--sub); padding: 18px 20px 6px; }
+  .group { background: var(--card); border-radius: var(--radius); margin: 0 16px; overflow: hidden; }
+  .row { display: flex; align-items: center; min-height: 44px; padding: 10px 16px; gap: 12px; border-bottom: 1px solid var(--line); font-size: 16px; }
+  .row:last-child { border-bottom: none; }
+  .row .label { color: var(--sub); width: 88px; flex-shrink: 0; font-size: 15px; }
+  .row .value { flex: 1; text-align: right; word-break: break-all; }
+  .row.link { width: 100%; text-align: left; }
+  .row.link .value { color: var(--sub); }
+  .chev { color: #c4c4c7; display: flex; }
+  .toast {
+    position: absolute; left: 50%; bottom: 110px; transform: translateX(-50%); background: rgba(28,28,30,.92);
+    color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 14px; z-index: 60; white-space: nowrap;
+    animation: fade 2.2s forwards;
+  }
+  @keyframes fade { 0% { opacity: 0; } 10% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* ---------- タブバー ---------- */
+  .tabbar { height: 82px; flex-shrink: 0; background: rgba(249,249,249,.96); border-top: 1px solid var(--line); display: flex; padding-bottom: 26px; }
+  .tabbar button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 10px; color: var(--sub); }
+  .tabbar button.on { color: var(--accent); }
+
+  /* ---------- 一覧 ---------- */
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 16px 8px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex-shrink: 0; padding: 7px 14px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); font-size: 14px; white-space: nowrap; }
+  .chip .n { color: var(--sub); font-size: 12px; margin-left: 4px; }
+  .chip.on { background: var(--text); color: #fff; border-color: var(--text); }
+  .chip.on .n { color: #c7c7cc; }
+  .chip.small { padding: 5px 12px; font-size: 13px; }
+  .chip.small.on { background: var(--accent); border-color: var(--accent); }
+  .chip.zero { color: #b0b0b5; }
+  .active-filters { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 8px; align-items: center; }
+  .tag-x { display: inline-flex; align-items: center; gap: 4px; background: var(--accent-weak); color: var(--accent); border-radius: 14px; padding: 4px 8px 4px 10px; font-size: 13px; }
+  .clear-all { color: var(--accent); font-size: 13px; padding: 4px 6px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 6px; padding: 4px 12px 120px; }
+  .card { text-align: left; min-width: 0; }
+  .card .thumb { aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden; position: relative; }
+  .card .thumb .cnt { position: absolute; right: 5px; bottom: 5px; background: rgba(0,0,0,.55); color: #fff; font-size: 10px; border-radius: 8px; padding: 1px 6px; }
+  .card .name { font-size: 12px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .meta { font-size: 11px; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fab {
+    position: absolute; right: 20px; bottom: 100px; width: 58px; height: 58px; border-radius: 50%;
+    background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 16px rgba(43,95,142,.45); z-index: 10;
+  }
+  .empty { text-align: center; color: var(--sub); padding: 80px 32px; line-height: 1.7; }
+  .empty .big { font-size: 56px; margin-bottom: 8px; }
+  .empty .btn { margin-top: 16px; }
+  .banner { margin: 0 16px 10px; background: #fff7e0; border: 1px solid #f1d98a; border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.6; display: flex; gap: 8px; align-items: flex-start; }
+  .banner b { display: block; }
+  .banner button { color: var(--sub); margin-left: auto; }
+
+  /* ---------- 写真プレースホルダ ---------- */
+  .ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
+  .ph .emoji { font-size: 44px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.2)); }
+  .ph .lbl { position: absolute; left: 6px; top: 5px; font-size: 10px; background: rgba(255,255,255,.75); color: #333; border-radius: 6px; padding: 1px 5px; }
+  .ph.light { box-shadow: inset 0 0 0 1px var(--line); }
+
+  /* ---------- 詳細 ---------- */
+  .carousel { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .carousel::-webkit-scrollbar { display: none; }
+  .carousel .slide { flex: 0 0 100%; aspect-ratio: 1 / 1; scroll-snap-align: start; }
+  .carousel .slide .emoji { font-size: 120px; }
+  .carousel .slide .lbl { font-size: 13px; left: 12px; top: 12px; padding: 2px 8px; }
+  .carousel-wrap { position: relative; }
+  .pager { position: absolute; right: 12px; bottom: 12px; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; padding: 2px 10px; border-radius: 10px; }
+  .dots { display: flex; justify-content: center; gap: 6px; padding: 10px 0 0; }
+  .dots span { width: 7px; height: 7px; border-radius: 50%; background: #c7c7cc; }
+  .dots span.on { background: var(--text); }
+  .detail-head { padding: 14px 20px 4px; }
+  .detail-head h2 { margin: 0 0 6px; font-size: 22px; }
+  .detail-head .path { color: var(--sub); font-size: 14px; }
+  .detail-tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 20px 0; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 4px 10px; font-size: 13px; }
+  .swatch { width: 14px; height: 14px; border-radius: 50%; display: inline-block; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); flex-shrink: 0; }
+  .memo { white-space: pre-wrap; line-height: 1.6; padding: 12px 16px; font-size: 15px; }
+  .danger-btn { display: block; width: calc(100% - 32px); margin: 24px 16px 0; background: var(--card); color: var(--danger); border-radius: var(--radius); height: 48px; font-size: 16px; }
+  .stamp { text-align: center; color: var(--sub); font-size: 12px; padding: 12px 0 40px; }
+
+  /* ---------- フォーム ---------- */
+  .form .row { align-items: center; }
+  .form .row .label { width: 96px; color: var(--text); }
+  .form .req { color: var(--danger); font-size: 11px; margin-left: 2px; }
+  .form input[type=text], .form input[type=date], .form select, .form textarea {
+    flex: 1; border: none; outline: none; background: transparent; font-size: 16px; text-align: right; min-width: 0; padding: 2px 0;
+  }
+  .form select { text-align-last: right; appearance: none; -webkit-appearance: none; color: var(--text); }
+  .form select.placeholder { color: #c4c4c7; }
+  .form input::placeholder, .form textarea::placeholder { color: #c4c4c7; }
+  .form textarea { text-align: left; min-height: 90px; resize: none; }
+  .form .row.col { flex-direction: column; align-items: stretch; gap: 10px; }
+  .form .row.col .label { width: auto; }
+  .yen { color: var(--sub); }
+  .err { color: var(--danger); font-size: 12px; padding: 4px 20px 0; }
+  .row.has-err .label { color: var(--danger); }
+  .photo-strip { display: flex; gap: 10px; overflow-x: auto; padding: 4px 16px 4px; scrollbar-width: none; }
+  .photo-strip::-webkit-scrollbar { display: none; }
+  .p-item { width: 92px; height: 92px; border-radius: 10px; overflow: hidden; position: relative; flex-shrink: 0; }
+  .p-item .main { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(43,95,142,.92); color: #fff; font-size: 11px; text-align: center; padding: 2px 0; }
+  .p-item .ph .emoji { font-size: 34px; }
+  .p-add { width: 92px; height: 92px; border-radius: 10px; border: 1.5px dashed #b5b5ba; color: var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 12px; flex-shrink: 0; background: var(--card); }
+  .p-add.err-border { border-color: var(--danger); color: var(--danger); }
+  .hint { font-size: 12px; color: var(--sub); padding: 6px 20px 0; }
+  .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px 4px; }
+  .color-opt { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: var(--sub); }
+  .color-opt .swatch { width: 32px; height: 32px; }
+  .color-opt.on { color: var(--text); font-weight: 600; }
+  .color-opt.on .swatch { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+  .seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .seg button { border: 1px solid var(--line); border-radius: 8px; height: 38px; font-size: 15px; background: var(--card); }
+  .seg button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ---------- シート・ダイアログ ---------- */
+  .backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.35); z-index: 40; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--bg); border-radius: 14px 14px 0 0; z-index: 41; max-height: 85%; display: flex; flex-direction: column; animation: up .2s ease-out; }
+  @keyframes up { from { transform: translateY(40px); opacity: .5; } to { transform: none; opacity: 1; } }
+  .sheet .grip { width: 36px; height: 5px; border-radius: 3px; background: #c7c7cc; margin: 8px auto 0; }
+  .sheet .sheet-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; }
+  .sheet .sheet-head .t { font-weight: 600; font-size: 17px; }
+  .sheet .sheet-body { overflow-y: auto; padding-bottom: 12px; }
+  .sheet .sheet-foot { padding: 10px 16px 30px; border-top: 1px solid var(--line); background: var(--bg); }
+  .primary-btn { width: 100%; height: 50px; border-radius: 12px; background: var(--accent); color: #fff; font-size: 17px; font-weight: 600; }
+  .filter-sec { padding: 4px 16px 10px; }
+  .filter-sec h3 { font-size: 13px; color: var(--sub); margin: 12px 4px 8px; font-weight: 500; }
+  .wrap-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .actions { position: absolute; left: 8px; right: 8px; bottom: 30px; z-index: 41; animation: up .2s ease-out; }
+  .actions .box { background: rgba(250,250,250,.98); border-radius: 14px; overflow: hidden; }
+  .actions .box .head { text-align: center; color: var(--sub); font-size: 13px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .actions .box button { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 56px; font-size: 18px; color: var(--accent); border-bottom: 1px solid var(--line); position: relative; }
+  .actions .box button:last-child { border-bottom: none; }
+  .actions .box button.destructive { color: var(--danger); }
+  .actions .box button .check { position: absolute; right: 18px; }
+  .actions .cancel { margin-top: 8px; width: 100%; height: 56px; background: #fff; border-radius: 14px; font-size: 18px; font-weight: 600; color: var(--accent); }
+  .dialog { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 280px; background: rgba(250,250,250,.98); border-radius: 14px; z-index: 51; text-align: center; overflow: hidden; }
+  .dialog-bd { z-index: 50; }
+  .dialog .body { padding: 20px 16px 16px; }
+  .dialog .body .t { font-weight: 600; font-size: 17px; }
+  .dialog .body .m { font-size: 13px; margin-top: 6px; line-height: 1.5; }
+  .dialog .body input { width: 100%; margin-top: 12px; border: 1px solid #c7c7cc; border-radius: 8px; padding: 8px; font-size: 15px; background: #fff; }
+  .dialog .body .e { color: var(--danger); font-size: 12px; margin-top: 6px; text-align: left; }
+  .dialog .btns { display: flex; border-top: 1px solid var(--line); }
+  .dialog .btns button { flex: 1; height: 46px; font-size: 17px; color: var(--accent); }
+  .dialog .btns button + button { border-left: 1px solid var(--line); }
+  .dialog .btns button.bold { font-weight: 600; }
+  .dialog .btns button.destructive { color: var(--danger); }
+
+  /* ---------- サブカテゴリ ---------- */
+  .sub-row { display: flex; align-items: center; gap: 8px; min-height: 50px; padding: 6px 8px 6px 16px; border-bottom: 1px solid var(--line); }
+  .sub-row:last-child { border-bottom: none; }
+  .sub-row .nm { flex: 1; font-size: 16px; }
+  .sub-row .n { color: var(--sub); font-size: 13px; margin-right: 4px; }
+  .sub-row .ib { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--accent); border-radius: 8px; }
+  .sub-row .ib.del { color: var(--danger); }
+  .sub-row .ib:disabled { color: #d1d1d6; }
+  .add-row { display: flex; align-items: center; gap: 8px; color: var(--accent); width: 100%; padding: 14px 16px; font-size: 16px; }
+</style>
+</head>
+<body>
+
+<aside class="panel" id="panel"></aside>
+
+<div class="phone">
+  <div class="statusbar"><span>9:41</span><span class="notch"></span><span>100%</span></div>
+  <div class="app" id="app"></div>
+</div>
+
+<script>
+/* =========================================================
+   マスタ定義
+   ========================================================= */
+const CATEGORIES = [
+  { id: 'tops',    name: 'トップス',             icon: '👕', subs: ['Tシャツ（半袖）','Tシャツ（長袖）','シャツ（半袖）','シャツ（長袖）','ポロシャツ','ニット・セーター','スウェット','パーカー','タンクトップ'] },
+  { id: 'bottoms', name: 'ボトムス',             icon: '👖', subs: ['スラックス','デニム','チノパン','カーゴパンツ','ワイドパンツ','イージーパンツ','ショートパンツ'] },
+  { id: 'outer',   name: 'アウター',             icon: '🧥', subs: ['テーラードジャケット','ブルゾン','レザージャケット','コート','ダウンジャケット','カーディガン','ベスト'] },
+  { id: 'setup',   name: 'セットアップ・スーツ', icon: '🤵', subs: ['セットアップ','スーツ'] },
+  { id: 'shoes',   name: 'シューズ',             icon: '👟', subs: ['スニーカー','革靴','ブーツ','ローファー','サンダル'] },
+  { id: 'bag',     name: 'バッグ',               icon: '🎒', subs: ['リュック','ショルダーバッグ','トートバッグ','ボディバッグ','ビジネスバッグ'] },
+  { id: 'hat',     name: '帽子',                 icon: '🧢', subs: ['キャップ','バケットハット','ハット','ニット帽'] },
+  { id: 'acc',     name: 'アクセサリー・小物',   icon: '⌚', subs: ['ベルト','ネクタイ','マフラー・ストール','手袋','腕時計','財布','アクセサリー'] },
+  { id: 'other',   name: 'その他',               icon: '📦', subs: [] },
+];
+const COLORS = [
+  { id: 'white',  name: '白',       hex: '#f7f7f5', light: true },
+  { id: 'black',  name: '黒',       hex: '#262628' },
+  { id: 'gray',   name: 'グレー',   hex: '#9c9ca1' },
+  { id: 'navy',   name: 'ネイビー', hex: '#1f2f54' },
+  { id: 'beige',  name: 'ベージュ', hex: '#d9c6a5', light: true },
+  { id: 'brown',  name: 'ブラウン', hex: '#7a5232' },
+  { id: 'khaki',  name: 'カーキ',   hex: '#6b6a3c' },
+  { id: 'red',    name: '赤',       hex: '#c0392b' },
+  { id: 'blue',   name: '青',       hex: '#3a74c9' },
+  { id: 'green',  name: '緑',       hex: '#2e7d4f' },
+  { id: 'yellow', name: '黄',       hex: '#e8c547', light: true },
+  { id: 'pink',   name: 'ピンク',   hex: '#e8a0b4', light: true },
+  { id: 'purple', name: '紫',       hex: '#7e57c2' },
+  { id: 'other',  name: 'その他',   hex: 'conic-gradient(#e74c3c,#f1c40f,#2ecc71,#3498db,#9b59b6,#e74c3c)' },
+];
+const SEASONS = ['春', '夏', '秋', '冬'];
+const PHOTO_LABELS = ['正面', '背面', 'タグ', '着用', 'ディテール'];
+const MAX_PHOTOS = 10;
+const SORTS = [
+  { id: 'created_desc', name: '登録日が新しい順' },
+  { id: 'created_asc',  name: '登録日が古い順' },
+  { id: 'buy_desc',     name: '購入日が新しい順' },
+  { id: 'buy_asc',      name: '購入日が古い順' },
+  { id: 'price_desc',   name: '購入金額が高い順' },
+  { id: 'price_asc',    name: '購入金額が安い順' },
+  { id: 'name_asc',     name: '名前順' },
+];
+const SCREENS = {
+  'SC-01': { name: 'アイテム一覧', desc: '起動時のホーム画面。上段のカテゴリ、下段のサブカテゴリのチップで素早く切り替える。色・季節・ブランドは絞り込みシート（SC-02）、並び順は並び替えシート（SC-03）で指定。右下の＋から登録（SC-05）。' },
+  'SC-02': { name: '絞り込み', desc: '一覧の上に重なるボトムシート。ベースカラー・季節・ブランドを複数選択し、該当件数を確認してから適用する。カテゴリ・サブカテゴリは一覧上部のチップで指定する。' },
+  'SC-03': { name: '並び替え', desc: '一覧の上に重なるアクションシート。登録日・購入日・購入金額・名前で並び替える。購入日・金額が未入力のアイテムは末尾に表示。' },
+  'SC-04': { name: 'アイテム詳細', desc: '写真を左右スワイプで切り替え、全項目を表示。右上の「編集」でSC-05（編集モード）へ。最下部から削除（確認ダイアログあり）。' },
+  'SC-05': { name: 'アイテム登録・編集', desc: '登録と編集で共通のフォーム。写真は1枚以上必須・最大10枚。先頭が代表写真で、写真タップで代表変更・削除。必須: 写真／名前／カテゴリ／ベースカラー。未保存で閉じると破棄確認。' },
+  'SC-06': { name: '設定', desc: 'サブカテゴリ管理への導線と、アプリ情報（バージョン・保存容量・永続ストレージ状態）を表示。' },
+  'SC-07': { name: 'サブカテゴリ管理（カテゴリ選択）', desc: '固定カテゴリの一覧。編集したいカテゴリを選んでSC-08へ。カテゴリ自体は変更できない。' },
+  'SC-08': { name: 'サブカテゴリ編集', desc: '選択カテゴリのサブカテゴリを追加・名称変更・削除・並び替え。同一カテゴリ内の重複名は不可。アイテムが登録されているサブカテゴリは削除不可。' },
+};
+
+/* =========================================================
+   状態
+   ========================================================= */
+let seq = 100;
+const uid = () => 'id' + (++seq);
+
+function initialSubs() {
+  const subs = {};
+  CATEGORIES.forEach(c => { subs[c.id] = c.subs.map(n => ({ id: uid(), name: n })); });
+  return subs;
+}
+function subByName(subs, catId, name) { const s = subs[catId].find(x => x.name === name); return s ? s.id : ''; }
+
+function sampleItems(subs) {
+  const raw = [
+    ['白の無地Tシャツ', 'tops', 'Tシャツ（半袖）', 'white', 'Plain Works', 'L', '2026-05-10', 2990, 'Plain Works 渋谷店', ['春','夏'], '綿100%', '洗濯機可', '', 3],
+    ['黒のロンT', 'tops', 'Tシャツ（長袖）', 'black', 'Plain Works', 'L', '2025-10-02', 3990, 'Plain Works 渋谷店', ['春','秋'], '綿100%', '洗濯機可', '', 2],
+    ['ネイビーのオックスフォードシャツ', 'tops', 'シャツ（長袖）', 'navy', 'Harbor Lane', 'M', '2025-04-18', 8800, 'オンラインストア', ['春','秋'], '綿100%', '洗濯機可（ネット使用）', 'アイロン必要。\n仕事でも着られる。', 3],
+    ['白のリネン半袖シャツ', 'tops', 'シャツ（半袖）', 'white', 'Harbor Lane', 'M', '2026-06-01', 7700, 'オンラインストア', ['夏'], '麻100%', '手洗い', '', 2],
+    ['グレーのクルーネックスウェット', 'tops', 'スウェット', 'gray', 'Urban Field', 'L', '2024-11-20', 9900, 'セレクトショップ', ['秋','冬'], '綿80% ポリエステル20%', '洗濯機可', '', 1],
+    ['インディゴのストレートデニム', 'bottoms', 'デニム', 'blue', 'Kurome Denim', 'W32', '2023-09-15', 16500, '直営店', ['春','秋','冬'], '綿100%', '裏返して洗濯', '2回目の色落ち中', 3],
+    ['黒のワイドスラックス', 'bottoms', 'スラックス', 'black', 'Sablon', '2', '2025-03-08', 14300, 'セレクトショップ', ['春','秋','冬'], 'ポリエステル100%', '洗濯機可', '', 2],
+    ['ベージュのチノパン', 'bottoms', 'チノパン', 'beige', 'Urban Field', 'M', '', null, '', ['春','夏','秋'], '', '', '購入時期不明', 1],
+    ['カーキのカーゴパンツ', 'bottoms', 'カーゴパンツ', 'khaki', 'Urban Field', 'L', '2026-04-05', 12100, 'セレクトショップ', ['春','秋'], '綿100%', '洗濯機可', '', 2],
+    ['ネイビーのテーラードジャケット', 'outer', 'テーラードジャケット', 'navy', 'Sablon', '46', '2024-03-30', 39600, '百貨店', ['春','秋'], 'ウール100%', 'クリーニング', 'セットアップのパンツあり', 3],
+    ['黒のダウンジャケット', 'outer', 'ダウンジャケット', 'black', 'North Ridge', 'L', '2022-12-01', 52800, 'アウトドアショップ', ['冬'], 'ナイロン / ダウン90%', 'クリーニング', '', 2],
+    ['白のレザースニーカー', 'shoes', 'スニーカー', 'white', 'Step Lab', '27.0cm', '2025-08-21', 13200, 'スニーカーショップ', ['春','夏','秋','冬'], '牛革', '', '', 3],
+    ['茶色のローファー', 'shoes', 'ローファー', 'brown', 'Crafton', '26.5cm', '2023-05-12', 29700, '百貨店', ['春','秋','冬'], '牛革', '', '', 2],
+    ['黒のショルダーバッグ', 'bag', 'ショルダーバッグ', 'black', 'Step Lab', '', '2026-01-10', 8800, 'オンラインストア', ['春','夏','秋','冬'], 'ナイロン', '', '', 1],
+    ['ネイビーのキャップ', 'hat', 'キャップ', 'navy', 'North Ridge', 'F', '2025-07-03', 4400, 'アウトドアショップ', ['春','夏'], '綿100%', '手洗い', '', 1],
+    ['茶色のレザーベルト', 'acc', 'ベルト', 'brown', 'Crafton', '', '2021-02-14', 9900, '百貨店', ['春','夏','秋','冬'], '牛革', '', '', 1],
+  ];
+  const base = new Date('2026-11-01T10:00:00').getTime();
+  return raw.map((r, i) => ({
+    id: uid(), name: r[0], catId: r[1], subId: subByName(subs, r[1], r[2]), colorId: r[3], brand: r[4], size: r[5],
+    buyDate: r[6], price: r[7], shop: r[8], seasons: r[9], material: r[10], wash: r[11], memo: r[12],
+    photos: Array.from({ length: r[13] }, (_, k) => ({ id: uid(), label: PHOTO_LABELS[k] })),
+    createdAt: base - (raw.length - i) * 86400000 * 3, updatedAt: base - (raw.length - i) * 86400000 * 2,
+  }));
+}
+
+function emptyFilter() { return { catId: null, subId: null, colors: [], seasons: [], brands: [] }; }
+
+let state;
+function resetState() {
+  const subs = initialSubs();
+  state = {
+    subs, items: sampleItems(subs), backupItems: null,
+    stack: [{ name: 'SC-01' }],
+    filter: emptyFilter(), tmpFilter: null, sort: 'created_desc',
+    sheet: null, dialog: null, form: null, toast: null,
+    reorder: false, browserMode: false, bannerClosed: false, emptyMode: false,
+  };
+}
+resetState();
+
+/* =========================================================
+   ユーティリティ
+   ========================================================= */
+const $app = document.getElementById('app');
+const $panel = document.getElementById('panel');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const cat = id => CATEGORIES.find(c => c.id === id);
+const color = id => COLORS.find(c => c.id === id);
+const subName = (catId, subId) => { if (!catId || !subId) return ''; const s = state.subs[catId].find(x => x.id === subId); return s ? s.name : ''; };
+const yen = n => (n === null || n === undefined || n === '') ? '' : '¥' + Number(n).toLocaleString('ja-JP');
+const fmtDate = d => d ? d.replace(/-/g, '/') : '';
+const fmtTs = t => { const d = new Date(t); return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`; };
+const cur = () => state.stack[state.stack.length - 1];
+const item = id => state.items.find(i => i.id === id);
+const swatchStyle = c => c.hex.startsWith('conic') ? `background:${c.hex}` : `background:${c.hex}`;
+
+const P = (d, extra = '') => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${d}</svg>`;
+const ICON = {
+  back: P('<path d="M15 5l-7 7 7 7"/>', 'stroke-width="2.6"'),
+  chev: P('<path d="M9 5l7 7-7 7"/>', 'width="16" height="16" stroke-width="2.4"'),
+  filter: P('<path d="M4 5h16l-6 8v5l-4 2v-7z"/>'),
+  sort: P('<path d="M7 4v16M4 17l3 3 3-3M17 20V4M14 7l3-3 3 3"/>'),
+  plus: P('<path d="M12 5v14M5 12h14"/>', 'width="28" height="28" stroke-width="2.4"'),
+  plusS: P('<path d="M12 5v14M5 12h14"/>', 'width="20" height="20"'),
+  hanger: P('<path d="M12 8.5V8c0-1.2 2-1.6 2-3.2a2 2 0 1 0-4 0"/><path d="M12 8.5L3.2 15.6a1 1 0 0 0 .6 1.9h16.4a1 1 0 0 0 .6-1.9z"/>', 'width="26" height="26"'),
+  gear: P('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>', 'width="26" height="26"'),
+  x: P('<path d="M18 6L6 18M6 6l12 12"/>', 'width="14" height="14" stroke-width="2.6"'),
+  camera: P('<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>', 'width="26" height="26" stroke-width="1.8"'),
+  pencil: P('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>', 'width="20" height="20"'),
+  trash: P('<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>', 'width="20" height="20"'),
+  up: P('<path d="M6 15l6-6 6 6"/>', 'width="20" height="20" stroke-width="2.4"'),
+  down: P('<path d="M6 9l6 6 6-6"/>', 'width="20" height="20" stroke-width="2.4"'),
+  check: P('<path d="M5 12l5 5 9-10"/>', 'width="20" height="20" stroke-width="2.6"'),
+};
+
+function photo(colorId, catId, label) {
+  const c = color(colorId) || { hex: '#d1d1d6' };
+  const bg = c.hex.startsWith('conic') ? 'linear-gradient(135deg,#f6d365,#a1c4fd)' : `linear-gradient(140deg, ${c.hex}, ${shade(c.hex, -18)})`;
+  const ic = (cat(catId) || { icon: '👔' }).icon;
+  return `<div class="ph ${c.light ? 'light' : ''}" style="background:${bg}"><span class="emoji">${ic}</span>${label ? `<span class="lbl">${esc(label)}</span>` : ''}</div>`;
+}
+function shade(hex, pct) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = v => Math.max(0, Math.min(255, Math.round(v + v * pct / 100)));
+  return '#' + [f(n >> 16), f((n >> 8) & 255), f(n & 255)].map(v => v.toString(16).padStart(2, '0')).join('');
+}
+
+/* =========================================================
+   ナビゲーション
+   ========================================================= */
+function go(name, params = {}) { state.stack.push({ name, ...params }); state.sheet = null; render(true); }
+function back() { if (state.stack.length > 1) state.stack.pop(); render(true); }
+function tab(name) { state.stack = [{ name }]; state.reorder = false; render(true); }
+function toast(msg) { state.toast = { msg, t: Date.now() }; }
+
+/* =========================================================
+   一覧の絞り込み・並び替え
+   ========================================================= */
+function applyFilter(items, f, ignore = {}) {
+  return items.filter(i =>
+    (ignore.cat || !f.catId || i.catId === f.catId) &&
+    (ignore.sub || !f.subId || i.subId === f.subId) &&
+    (!f.colors.length || f.colors.includes(i.colorId)) &&
+    (!f.seasons.length || f.seasons.some(s => i.seasons.includes(s))) &&
+    (!f.brands.length || f.brands.includes(i.brand)));
+}
+function sortItems(items) {
+  const a = [...items];
+  const last = (v, desc, cmp) => (x, y) => {
+    const vx = v(x), vy = v(y);
+    if (vx == null || vx === '') return (vy == null || vy === '') ? 0 : 1;
+    if (vy == null || vy === '') return -1;
+    return desc ? cmp(vy, vx) : cmp(vx, vy);
+  };
+  const num = (p, q) => p - q, str = (p, q) => String(p).localeCompare(String(q), 'ja');
+  switch (state.sort) {
+    case 'created_desc': return a.sort((x, y) => y.createdAt - x.createdAt);
+    case 'created_asc':  return a.sort((x, y) => x.createdAt - y.createdAt);
+    case 'buy_desc':     return a.sort(last(i => i.buyDate, true, str));
+    case 'buy_asc':      return a.sort(last(i => i.buyDate, false, str));
+    case 'price_desc':   return a.sort(last(i => i.price, true, num));
+    case 'price_asc':    return a.sort(last(i => i.price, false, num));
+    case 'name_asc':     return a.sort((x, y) => str(x.name, y.name));
+  }
+  return a;
+}
+const extraFilterCount = f => f.colors.length + f.seasons.length + f.brands.length;
+const brands = () => [...new Set(state.items.map(i => i.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ja'));
+
+/* =========================================================
+   画面描画
+   ========================================================= */
+function tabbar(active) {
+  return `<nav class="tabbar">
+    <button class="${active === 'closet' ? 'on' : ''}" data-action="tab" data-to="SC-01">${ICON.hanger}クローゼット</button>
+    <button class="${active === 'settings' ? 'on' : ''}" data-action="tab" data-to="SC-06">${ICON.gear}設定</button>
+  </nav>`;
+}
+
+function renderList() {
+  const f = state.filter;
+  const all = state.items;
+  const shown = sortItems(applyFilter(all, f));
+  const filtered = f.catId || f.subId || extraFilterCount(f);
+  const cnt = extraFilterCount(f);
+
+  const catChips = [`<button class="chip ${!f.catId ? 'on' : ''}" data-action="cat" data-id="">すべて<span class="n">${applyFilter(all, f, { cat: true, sub: true }).length}</span></button>`]
+    .concat(CATEGORIES.map(c => {
+      const n = applyFilter(all, f, { cat: true, sub: true }).filter(i => i.catId === c.id).length;
+      return `<button class="chip ${f.catId === c.id ? 'on' : ''} ${n ? '' : 'zero'}" data-action="cat" data-id="${c.id}">${c.name}<span class="n">${n}</span></button>`;
+    })).join('');
+
+  let subChips = '';
+  if (f.catId && state.subs[f.catId].length) {
+    const base = applyFilter(all, f, { sub: true });
+    subChips = `<div class="chips">
+      <button class="chip small ${!f.subId ? 'on' : ''}" data-action="sub" data-id="">すべて</button>
+      ${state.subs[f.catId].map(s => { const n = base.filter(i => i.subId === s.id).length;
+        return `<button class="chip small ${f.subId === s.id ? 'on' : ''} ${n ? '' : 'zero'}" data-action="sub" data-id="${s.id}">${esc(s.name)}<span class="n">${n}</span></button>`; }).join('')}
+    </div>`;
+  }
+
+  const tags = [
+    ...f.colors.map(id => `<span class="tag-x"><span class="swatch" style="${swatchStyle(color(id))}"></span>${color(id).name}<button data-action="rmf" data-k="colors" data-v="${id}">${ICON.x}</button></span>`),
+    ...f.seasons.map(s => `<span class="tag-x">${s}<button data-action="rmf" data-k="seasons" data-v="${s}">${ICON.x}</button></span>`),
+    ...f.brands.map(b => `<span class="tag-x">${esc(b)}<button data-action="rmf" data-k="brands" data-v="${esc(b)}">${ICON.x}</button></span>`),
+  ];
+  const tagRow = tags.length ? `<div class="active-filters">${tags.join('')}<button class="clear-all" data-action="clearExtra">クリア</button></div>` : '';
+
+  const banner = state.browserMode && !state.bannerClosed ? `<div class="banner"><div>📲<b>ホーム画面に追加してご利用ください</b>Safariの共有ボタン → 「ホーム画面に追加」。追加せずに使うと、しばらく開かない間にデータが消える場合があります。</div><button data-action="closeBanner">${ICON.x}</button></div>` : '';
+
+  let body;
+  if (!all.length) {
+    body = `<div class="empty"><div class="big">👕</div>まだアイテムが登録されていません。<br>右下の＋から、手持ちの服を登録しましょう。</div>`;
+  } else if (!shown.length) {
+    body = `<div class="empty"><div class="big">🔍</div>条件に一致するアイテムがありません。<br><button class="chip on btn" data-action="clearAll">条件をすべてクリア</button></div>`;
+  } else {
+    body = `<div class="grid">${shown.map(i => `
+      <button class="card" data-action="open" data-id="${i.id}">
+        <div class="thumb">${photo(i.colorId, i.catId)}${i.photos.length > 1 ? `<span class="cnt">${i.photos.length}枚</span>` : ''}</div>
+        <div class="name">${esc(i.name)}</div>
+        <div class="meta">${esc(subName(i.catId, i.subId) || cat(i.catId).name)}</div>
+      </button>`).join('')}</div>`;
+  }
+
+  return `
+    <div class="navbar">
+      <span></span>
+      <div>
+        <button class="icon-btn" data-action="openSort" aria-label="並び替え">${ICON.sort}</button>
+        <button class="icon-btn" data-action="openFilter" aria-label="絞り込み">${ICON.filter}${cnt ? `<span class="badge">${cnt}</span>` : ''}</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="large-title"><h1>クローゼット</h1><span class="count">${filtered ? `${shown.length} / ${all.length}点` : `${all.length}点`}</span></div>
+      ${banner}
+      ${all.length ? `<div class="chips">${catChips}</div>${subChips}${tagRow}` : ''}
+      ${body}
+    </div>
+    <button class="fab" data-action="new" aria-label="アイテム登録">${ICON.plus}</button>
+    ${tabbar('closet')}`;
+}
+
+function renderDetail() {
+  const i = item(cur().id);
+  if (!i) return renderList();
+  const c = color(i.colorId);
+  const row = (l, v) => `<div class="row"><span class="label">${l}</span><span class="value">${v ? esc(v) : '<span style="color:#c4c4c7">未入力</span>'}</span></div>`;
+  return `
+    <div class="navbar">
+      <button class="nav-btn" data-action="back">${ICON.back}戻る</button>
+      <button class="nav-btn" data-action="edit" data-id="${i.id}">編集</button>
+    </div>
+    <div class="content">
+      <div class="carousel-wrap">
+        <div class="carousel" id="carousel">${i.photos.map(p => `<div class="slide">${photo(i.colorId, i.catId, p.label)}</div>`).join('')}</div>
+        ${i.photos.length > 1 ? `<span class="pager" id="pager">1 / ${i.photos.length}</span>` : ''}
+      </div>
+      ${i.photos.length > 1 ? `<div class="dots" id="dots">${i.photos.map((_, k) => `<span class="${k ? '' : 'on'}"></span>`).join('')}</div>` : ''}
+      <div class="detail-head">
+        <h2>${esc(i.name)}</h2>
+        <div class="path">${cat(i.catId).name}${subName(i.catId, i.subId) ? ' › ' + esc(subName(i.catId, i.subId)) : ''}</div>
+      </div>
+      <div class="detail-tags">
+        <span class="pill"><span class="swatch" style="${swatchStyle(c)}"></span>${c.name}</span>
+        ${i.seasons.map(s => `<span class="pill">${s}</span>`).join('')}
+      </div>
+      <div class="section-title">基本情報</div>
+      <div class="group">${row('ブランド', i.brand)}${row('サイズ', i.size)}${row('素材', i.material)}${row('洗濯方法', i.wash)}</div>
+      <div class="section-title">購入情報</div>
+      <div class="group">${row('購入日', fmtDate(i.buyDate))}${row('購入金額', yen(i.price))}${row('購入店舗', i.shop)}</div>
+      <div class="section-title">メモ</div>
+      <div class="group"><div class="memo">${i.memo ? esc(i.memo) : '<span style="color:#c4c4c7">未入力</span>'}</div></div>
+      <button class="danger-btn" data-action="askDelete" data-id="${i.id}">このアイテムを削除</button>
+      <div class="stamp">登録日 ${fmtTs(i.createdAt)}　更新日 ${fmtTs(i.updatedAt)}</div>
+    </div>
+    ${tabbar('closet')}`;
+}
+
+function blankForm() {
+  return { mode: 'new', id: null, photos: [], name: '', catId: '', subId: '', colorId: '', brand: '', size: '', buyDate: '', price: '', shop: '', seasons: [], material: '', wash: '', memo: '', errors: {}, dirty: false };
+}
+function formFromItem(i) {
+  return { mode: 'edit', id: i.id, photos: i.photos.map(p => ({ ...p })), name: i.name, catId: i.catId, subId: i.subId, colorId: i.colorId, brand: i.brand, size: i.size,
+    buyDate: i.buyDate, price: i.price == null ? '' : String(i.price), shop: i.shop, seasons: [...i.seasons], material: i.material, wash: i.wash, memo: i.memo, errors: {}, dirty: false };
+}
+
+function renderForm() {
+  const f = state.form;
+  const e = f.errors;
+  const txt = (key, label, ph, opt = {}) => `
+    <div class="row ${e[key] ? 'has-err' : ''}"><span class="label">${label}${opt.req ? '<span class="req">必須</span>' : ''}</span>
+      ${opt.prefix || ''}<input type="text" data-field="${key}" value="${esc(f[key])}" placeholder="${ph}" ${opt.list ? `list="${opt.list}"` : ''} ${opt.mode ? `inputmode="${opt.mode}"` : ''} maxlength="${opt.max || 100}"></div>`;
+  const subs = f.catId ? state.subs[f.catId] : [];
+  return `
+    <div class="navbar">
+      <button class="nav-btn" data-action="cancelForm">キャンセル</button>
+      <span class="title">${f.mode === 'new' ? 'アイテム登録' : 'アイテム編集'}</span>
+      <button class="nav-btn bold" data-action="save">保存</button>
+    </div>
+    <div class="content form">
+      <div class="section-title">写真<span class="req">必須</span>（${f.photos.length} / ${MAX_PHOTOS}枚）</div>
+      <div class="photo-strip">
+        ${f.photos.map((p, k) => `<button class="p-item" data-action="photoMenu" data-k="${k}">${photo(f.colorId, f.catId, p.label)}${k === 0 ? '<span class="main">代表</span>' : ''}</button>`).join('')}
+        ${f.photos.length < MAX_PHOTOS ? `<button class="p-add ${e.photos ? 'err-border' : ''}" data-action="addPhoto">${ICON.camera}写真を追加</button>` : ''}
+      </div>
+      ${e.photos ? `<div class="err">${e.photos}</div>` : `<div class="hint">先頭の写真が一覧に表示されます。写真をタップすると代表写真の変更・削除ができます。</div>`}
+
+      <div class="section-title">基本情報</div>
+      <div class="group">
+        ${txt('name', '名前', '例: 白の無地Tシャツ', { req: true, max: 50 })}
+        <div class="row ${e.catId ? 'has-err' : ''}"><span class="label">カテゴリ<span class="req">必須</span></span>
+          <select data-field="catId" class="${f.catId ? '' : 'placeholder'}">
+            <option value="" ${f.catId ? '' : 'selected'}>選択してください</option>
+            ${CATEGORIES.map(c => `<option value="${c.id}" ${f.catId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+          </select><span class="chev">${ICON.chev}</span></div>
+        <div class="row"><span class="label">サブカテゴリ</span>
+          <select data-field="subId" class="${f.subId ? '' : 'placeholder'}" ${f.catId && subs.length ? '' : 'disabled'}>
+            <option value="">${!f.catId ? '先にカテゴリを選択' : subs.length ? '未選択' : 'なし'}</option>
+            ${subs.map(s => `<option value="${s.id}" ${f.subId === s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}
+          </select><span class="chev">${ICON.chev}</span></div>
+        <div class="row col ${e.colorId ? 'has-err' : ''}"><span class="label">ベースカラー<span class="req">必須</span></span>
+          <div class="color-grid">${COLORS.map(c => `<button class="color-opt ${f.colorId === c.id ? 'on' : ''}" data-action="pickColor" data-id="${c.id}"><span class="swatch" style="${swatchStyle(c)}"></span>${c.name}</button>`).join('')}</div>
+        </div>
+        <div class="row col"><span class="label">季節（複数選択可）</span>
+          <div class="seg">${SEASONS.map(s => `<button class="${f.seasons.includes(s) ? 'on' : ''}" data-action="toggleSeason" data-s="${s}">${s}</button>`).join('')}</div>
+        </div>
+      </div>
+      ${['name', 'catId', 'colorId'].filter(k => e[k]).map(k => `<div class="err">${e[k]}</div>`).join('')}
+
+      <div class="section-title">詳細情報</div>
+      <div class="group">
+        ${txt('brand', 'ブランド', '例: Plain Works', { list: 'brandList' })}
+        ${txt('size', 'サイズ', '例: M、W32、27.0cm', { max: 20 })}
+        ${txt('material', '素材', '例: 綿100%')}
+        ${txt('wash', '洗濯方法', '例: 手洗い')}
+      </div>
+      <datalist id="brandList">${brands().map(b => `<option value="${esc(b)}">`).join('')}</datalist>
+
+      <div class="section-title">購入情報</div>
+      <div class="group">
+        <div class="row"><span class="label">購入日</span><input type="date" data-field="buyDate" value="${esc(f.buyDate)}"></div>
+        ${txt('price', '購入金額', '0', { prefix: '<span class="yen">¥</span>', mode: 'numeric', max: 9 })}
+        ${txt('shop', '購入店舗', '例: 渋谷の直営店')}
+      </div>
+      ${e.price ? `<div class="err">${e.price}</div>` : ''}
+
+      <div class="section-title">メモ</div>
+      <div class="group"><div class="row"><textarea data-field="memo" placeholder="自由に入力できます" maxlength="1000">${esc(f.memo)}</textarea></div></div>
+      <div style="height:60px"></div>
+    </div>`;
+}
+
+function renderSettings() {
+  const used = Math.round(state.items.reduce((s, i) => s + i.photos.length, 0) * 0.32 * 10) / 10;
+  return `
+    <div class="navbar"><span></span></div>
+    <div class="content">
+      <div class="large-title"><h1>設定</h1></div>
+      <div class="section-title">分類</div>
+      <div class="group">
+        <button class="row link" data-action="go" data-to="SC-07"><span style="flex:1">サブカテゴリ管理</span><span class="chev">${ICON.chev}</span></button>
+      </div>
+      <div class="section-title">アプリについて</div>
+      <div class="group">
+        <div class="row"><span style="flex:1">登録アイテム数</span><span class="value" style="color:var(--sub)">${state.items.length}点</span></div>
+        <div class="row"><span style="flex:1">写真の保存容量</span><span class="value" style="color:var(--sub)">約${used}MB</span></div>
+        <div class="row"><span style="flex:1">データの永続保存</span><span class="value" style="color:var(--sub)">${state.browserMode ? '未許可' : '有効'}</span></div>
+        <div class="row"><span style="flex:1">バージョン</span><span class="value" style="color:var(--sub)">0.1.0</span></div>
+      </div>
+      <div class="hint" style="padding:10px 20px">データはこのiPhone内にのみ保存されます。Safariの履歴・Webサイトデータを削除すると、登録したデータも削除されます。</div>
+    </div>
+    ${tabbar('settings')}`;
+}
+
+function renderCatSelect() {
+  return `
+    <div class="navbar">
+      <button class="nav-btn" data-action="back">${ICON.back}設定</button>
+      <span class="title">サブカテゴリ管理</span><span style="width:60px"></span>
+    </div>
+    <div class="content">
+      <div class="section-title">編集するカテゴリを選択</div>
+      <div class="group">
+        ${CATEGORIES.map(c => `<button class="row link" data-action="go" data-to="SC-08" data-cat="${c.id}">
+          <span style="font-size:20px">${c.icon}</span><span style="flex:1">${c.name}</span>
+          <span class="value" style="flex:0">${state.subs[c.id].length}件</span><span class="chev">${ICON.chev}</span></button>`).join('')}
+      </div>
+      <div class="hint" style="padding:10px 20px">カテゴリ自体は固定のため変更できません。</div>
+    </div>
+    ${tabbar('settings')}`;
+}
+
+function renderSubEdit() {
+  const c = cat(cur().cat);
+  const subs = state.subs[c.id];
+  const count = sid => state.items.filter(i => i.subId === sid).length;
+  return `
+    <div class="navbar">
+      <button class="nav-btn" data-action="back">${ICON.back}戻る</button>
+      <span class="title">${c.name}</span>
+      <button class="nav-btn ${state.reorder ? 'bold' : ''}" data-action="toggleReorder" ${subs.length > 1 ? '' : 'disabled'}>${state.reorder ? '完了' : '並び替え'}</button>
+    </div>
+    <div class="content">
+      <div class="section-title">サブカテゴリ（${subs.length}件）</div>
+      <div class="group">
+        ${subs.length ? subs.map((s, k) => `<div class="sub-row">
+          <span class="nm">${esc(s.name)}</span><span class="n">${count(s.id)}点</span>
+          ${state.reorder
+            ? `<button class="ib" data-action="move" data-k="${k}" data-d="-1" ${k === 0 ? 'disabled' : ''}>${ICON.up}</button><button class="ib" data-action="move" data-k="${k}" data-d="1" ${k === subs.length - 1 ? 'disabled' : ''}>${ICON.down}</button>`
+            : `<button class="ib" data-action="renameSub" data-id="${s.id}" aria-label="名称変更">${ICON.pencil}</button><button class="ib del" data-action="deleteSub" data-id="${s.id}" aria-label="削除">${ICON.trash}</button>`}
+        </div>`).join('') : '<div class="row" style="color:var(--sub)">サブカテゴリはありません</div>'}
+      </div>
+      ${state.reorder ? '' : `<div class="group" style="margin-top:12px"><button class="add-row" data-action="addSub">${ICON.plusS}サブカテゴリを追加</button></div>`}
+      <div class="hint" style="padding:10px 20px">アイテムが登録されているサブカテゴリは削除できません。</div>
+    </div>
+    ${tabbar('settings')}`;
+}
+
+function renderSheet() {
+  const s = state.sheet;
+  if (!s) return '';
+  if (s.type === 'filter') {
+    const t = state.tmpFilter;
+    const n = applyFilter(state.items, t).length;
+    return `<div class="backdrop" data-action="closeSheet"></div>
+    <div class="sheet">
+      <div class="grip"></div>
+      <div class="sheet-head"><button class="nav-btn" style="color:var(--accent);padding:8px" data-action="resetTmp">リセット</button><span class="t">絞り込み</span><button class="nav-btn" style="color:var(--accent);padding:8px" data-action="closeSheet">閉じる</button></div>
+      <div class="sheet-body">
+        <div class="filter-sec"><h3>ベースカラー</h3><div class="color-grid">
+          ${COLORS.map(c => `<button class="color-opt ${t.colors.includes(c.id) ? 'on' : ''}" data-action="tmpToggle" data-k="colors" data-v="${c.id}"><span class="swatch" style="${swatchStyle(c)}"></span>${c.name}</button>`).join('')}
+        </div></div>
+        <div class="filter-sec"><h3>季節</h3><div class="seg">
+          ${SEASONS.map(x => `<button class="${t.seasons.includes(x) ? 'on' : ''}" data-action="tmpToggle" data-k="seasons" data-v="${x}">${x}</button>`).join('')}
+        </div></div>
+        <div class="filter-sec"><h3>ブランド</h3><div class="wrap-chips">
+          ${brands().map(b => `<button class="chip small ${t.brands.includes(b) ? 'on' : ''}" data-action="tmpToggle" data-k="brands" data-v="${esc(b)}">${esc(b)}</button>`).join('') || '<span style="color:var(--sub);font-size:13px">登録されたブランドはありません</span>'}
+        </div></div>
+      </div>
+      <div class="sheet-foot"><button class="primary-btn" data-action="applyFilter" ${n ? '' : 'style="opacity:.5"'}>${n}件を表示</button></div>
+    </div>`;
+  }
+  if (s.type === 'actions') {
+    return `<div class="backdrop" data-action="closeSheet"></div>
+    <div class="actions">
+      <div class="box">
+        ${s.title ? `<div class="head">${esc(s.title)}</div>` : ''}
+        ${s.options.map((o, k) => `<button class="${o.style || ''}" data-action="sheetOpt" data-k="${k}">${esc(o.label)}${o.checked ? `<span class="check">${ICON.check}</span>` : ''}</button>`).join('')}
+      </div>
+      <button class="cancel" data-action="closeSheet">キャンセル</button>
+    </div>`;
+  }
+  return '';
+}
+
+function renderDialog() {
+  const d = state.dialog;
+  if (!d) return '';
+  return `<div class="backdrop dialog-bd"></div>
+  <div class="dialog">
+    <div class="body">
+      <div class="t">${esc(d.title)}</div>
+      ${d.message ? `<div class="m">${esc(d.message)}</div>` : ''}
+      ${d.input !== undefined ? `<input type="text" id="dlgInput" data-dialog-input value="${esc(d.input)}" placeholder="${esc(d.placeholder || '')}" maxlength="20">${d.error ? `<div class="e">${esc(d.error)}</div>` : ''}` : ''}
+    </div>
+    <div class="btns">${d.buttons.map((b, k) => `<button class="${b.style || ''}" data-action="dialogBtn" data-k="${k}">${esc(b.label)}</button>`).join('')}</div>
+  </div>`;
+}
+
+function currentScreenId() {
+  if (state.sheet && state.sheet.screen) return state.sheet.screen;
+  return cur().name;
+}
+
+function renderPanel() {
+  const id = currentScreenId();
+  const info = SCREENS[id];
+  $panel.innerHTML = `
+    <h1>洋服管理アプリ 画面モック</h1>
+    <div class="ver">v0.1（要件定義書 v0.4 準拠）／操作はすべてモック上の仮データで、保存されません</div>
+    <div class="current"><span class="id">${id}</span> ${info.name}<p>${info.desc}</p></div>
+    <h2>画面一覧（クリックで移動）</h2>
+    <ul>${Object.entries(SCREENS).map(([k, v]) => `<li><button class="${k === id ? 'on' : ''}" data-panel="${k}">${k}　${v.name}</button></li>`).join('')}</ul>
+    <h2>状態の切り替え</h2>
+    <label><input type="checkbox" data-toggle="empty" ${state.emptyMode ? 'checked' : ''}> 初回起動（登録0件）</label>
+    <label><input type="checkbox" data-toggle="browser" ${state.browserMode ? 'checked' : ''}> ホーム画面に未追加（Safariで表示）</label>
+    <button class="reset" data-panel="reset">モックを初期状態に戻す</button>`;
+}
+
+let lastScreenKey = null;
+function render(navigated = false) {
+  const prevContent = $app.querySelector('.content');
+  const key = JSON.stringify(cur());
+  const scroll = (!navigated && prevContent && key === lastScreenKey) ? prevContent.scrollTop : 0;
+  const stripScroll = $app.querySelector('.photo-strip')?.scrollLeft || 0;
+
+  const r = { 'SC-01': renderList, 'SC-04': renderDetail, 'SC-05': renderForm, 'SC-06': renderSettings, 'SC-07': renderCatSelect, 'SC-08': renderSubEdit }[cur().name];
+  let html = r() + renderSheet() + renderDialog();
+  if (state.toast && Date.now() - state.toast.t < 2200) html += `<div class="toast">${esc(state.toast.msg)}</div>`;
+  $app.innerHTML = html;
+  lastScreenKey = key;
+
+  const c = $app.querySelector('.content');
+  if (c) c.scrollTop = scroll;
+  const strip = $app.querySelector('.photo-strip');
+  if (strip && !navigated) strip.scrollLeft = stripScroll;
+
+  const car = document.getElementById('carousel');
+  if (car) car.addEventListener('scroll', () => {
+    const k = Math.round(car.scrollLeft / car.clientWidth);
+    const p = document.getElementById('pager'); if (p) p.textContent = `${k + 1} / ${car.children.length}`;
+    document.querySelectorAll('#dots span').forEach((d, j) => d.classList.toggle('on', j === k));
+  });
+  const di = document.getElementById('dlgInput');
+  if (di) { di.focus(); di.setSelectionRange(di.value.length, di.value.length); }
+  renderPanel();
+}
+
+/* =========================================================
+   操作
+   ========================================================= */
+function openDialog(d) { state.dialog = d; render(); }
+function closeDialog() { state.dialog = null; render(); }
+
+function validateSubName(catId, name, exceptId) {
+  const v = name.trim();
+  if (!v) return '名称を入力してください';
+  if (v.length > 20) return '20文字以内で入力してください';
+  if (state.subs[catId].some(s => s.name === v && s.id !== exceptId)) return '同じ名前のサブカテゴリが既に存在します';
+  return '';
+}
+
+function saveForm() {
+  const f = state.form;
+  const e = {};
+  if (!f.photos.length) e.photos = '写真を1枚以上登録してください';
+  if (!f.name.trim()) e.name = '名前を入力してください';
+  if (!f.catId) e.catId = 'カテゴリを選択してください';
+  if (!f.colorId) e.colorId = 'ベースカラーを選択してください';
+  if (f.price !== '' && !/^\d+$/.test(String(f.price).replace(/,/g, ''))) e.price = '購入金額は0以上の整数（円）で入力してください';
+  f.errors = e;
+  if (Object.keys(e).length) { toast('入力内容を確認してください'); render(); return; }
+
+  const data = {
+    name: f.name.trim(), catId: f.catId, subId: f.subId, colorId: f.colorId, brand: f.brand.trim(), size: f.size.trim(),
+    buyDate: f.buyDate, price: f.price === '' ? null : Number(String(f.price).replace(/,/g, '')), shop: f.shop.trim(),
+    seasons: SEASONS.filter(s => f.seasons.includes(s)), material: f.material.trim(), wash: f.wash.trim(), memo: f.memo, photos: f.photos,
+  };
+  if (f.mode === 'new') {
+    state.items.push({ id: uid(), ...data, createdAt: Date.now(), updatedAt: Date.now() });
+    state.form = null;
+    state.stack = [{ name: 'SC-01' }];
+    toast('登録しました');
+  } else {
+    Object.assign(item(f.id), data, { updatedAt: Date.now() });
+    state.form = null;
+    state.stack.pop();
+    toast('保存しました');
+  }
+  render(true);
+}
+
+const actions = {
+  tab: el => tab(el.dataset.to),
+  go: el => { if (el.dataset.to === 'SC-08') state.reorder = false; go(el.dataset.to, el.dataset.cat ? { cat: el.dataset.cat } : {}); },
+  back: () => back(),
+  open: el => go('SC-04', { id: el.dataset.id }),
+  cat: el => { state.filter.catId = el.dataset.id || null; state.filter.subId = null; render(); },
+  sub: el => { state.filter.subId = el.dataset.id || null; render(); },
+  rmf: el => { const k = el.dataset.k; state.filter[k] = state.filter[k].filter(v => v !== el.dataset.v); render(); },
+  clearExtra: () => { Object.assign(state.filter, { colors: [], seasons: [], brands: [] }); render(); },
+  clearAll: () => { state.filter = emptyFilter(); render(); },
+  closeBanner: () => { state.bannerClosed = true; render(); },
+
+  openFilter: () => { state.tmpFilter = JSON.parse(JSON.stringify(state.filter)); state.sheet = { type: 'filter', screen: 'SC-02' }; render(); },
+  tmpToggle: el => { const a = state.tmpFilter[el.dataset.k], v = el.dataset.v; const i = a.indexOf(v); i >= 0 ? a.splice(i, 1) : a.push(v); render(); },
+  resetTmp: () => { Object.assign(state.tmpFilter, { colors: [], seasons: [], brands: [] }); render(); },
+  applyFilter: () => { state.filter = state.tmpFilter; state.sheet = null; render(); },
+  openSort: () => {
+    state.sheet = { type: 'actions', screen: 'SC-03', title: '並び替え', options: SORTS.map(s => ({ label: s.name, checked: state.sort === s.id, fn: () => { state.sort = s.id; } })) };
+    render();
+  },
+  closeSheet: () => { state.sheet = null; render(); },
+  sheetOpt: el => { const o = state.sheet.options[+el.dataset.k]; state.sheet = null; o.fn(); render(); },
+
+  new: () => { state.form = blankForm(); go('SC-05'); },
+  edit: el => { state.form = formFromItem(item(el.dataset.id)); go('SC-05'); },
+  cancelForm: () => {
+    const leave = () => { state.form = null; state.dialog = null; back(); };
+    if (!state.form.dirty) return leave();
+    openDialog({ title: state.form.mode === 'new' ? '登録を中止しますか？' : '変更を破棄しますか？', message: '入力した内容は保存されません。',
+      buttons: [{ label: '入力を続ける', style: 'bold', fn: closeDialog }, { label: '破棄', style: 'destructive', fn: leave }] });
+  },
+  save: () => saveForm(),
+  addPhoto: () => {
+    const add = src => () => { const f = state.form; f.photos.push({ id: uid(), label: src + (f.photos.length + 1) }); f.dirty = true; delete f.errors.photos; };
+    state.sheet = { type: 'actions', screen: 'SC-05', title: '写真を追加', options: [{ label: '写真を撮る', fn: add('撮影') }, { label: 'フォトライブラリから選択', fn: add('ライブラリ') }] };
+    render();
+  },
+  photoMenu: el => {
+    const k = +el.dataset.k, f = state.form;
+    const opts = [];
+    if (k > 0) opts.push({ label: '代表写真にする', fn: () => { const [p] = f.photos.splice(k, 1); f.photos.unshift(p); f.dirty = true; } });
+    opts.push({ label: '削除', style: 'destructive', fn: () => {
+      if (f.mode === 'edit' && f.photos.length === 1) { toast('写真は1枚以上必要です'); return; }
+      f.photos.splice(k, 1); f.dirty = true; } });
+    state.sheet = { type: 'actions', screen: 'SC-05', title: k === 0 ? '代表写真' : `写真 ${k + 1}`, options: opts };
+    render();
+  },
+  pickColor: el => { state.form.colorId = el.dataset.id; state.form.dirty = true; delete state.form.errors.colorId; render(); },
+  toggleSeason: el => { const a = state.form.seasons, s = el.dataset.s; const i = a.indexOf(s); i >= 0 ? a.splice(i, 1) : a.push(s); state.form.dirty = true; render(); },
+
+  askDelete: el => {
+    const i = item(el.dataset.id);
+    openDialog({ title: 'このアイテムを削除しますか？', message: `「${i.name}」を削除します。削除すると元に戻せません。`,
+      buttons: [{ label: 'キャンセル', fn: closeDialog }, { label: '削除', style: 'destructive bold', fn: () => {
+        state.items = state.items.filter(x => x.id !== i.id); state.dialog = null; state.stack = [{ name: 'SC-01' }]; toast('削除しました'); render(true); } }] });
+  },
+
+  toggleReorder: () => { state.reorder = !state.reorder; render(); },
+  move: el => { const a = state.subs[cur().cat], k = +el.dataset.k, d = +el.dataset.d; [a[k], a[k + d]] = [a[k + d], a[k]]; render(); },
+  addSub: () => {
+    const catId = cur().cat;
+    openDialog({ title: 'サブカテゴリを追加', message: `${cat(catId).name}に追加します`, input: '', placeholder: '例: ジョガーパンツ',
+      buttons: [{ label: 'キャンセル', fn: closeDialog }, { label: '追加', style: 'bold', fn: () => {
+        const err = validateSubName(catId, state.dialog.input);
+        if (err) { state.dialog.error = err; render(); return; }
+        state.subs[catId].push({ id: uid(), name: state.dialog.input.trim() }); state.dialog = null; toast('追加しました'); render(); } }] });
+  },
+  renameSub: el => {
+    const catId = cur().cat, s = state.subs[catId].find(x => x.id === el.dataset.id);
+    openDialog({ title: '名称を変更', message: '登録済みアイテムの表示も変更されます', input: s.name,
+      buttons: [{ label: 'キャンセル', fn: closeDialog }, { label: '変更', style: 'bold', fn: () => {
+        const err = validateSubName(catId, state.dialog.input, s.id);
+        if (err) { state.dialog.error = err; render(); return; }
+        s.name = state.dialog.input.trim(); state.dialog = null; toast('変更しました'); render(); } }] });
+  },
+  deleteSub: el => {
+    const catId = cur().cat, s = state.subs[catId].find(x => x.id === el.dataset.id);
+    const n = state.items.filter(i => i.subId === s.id).length;
+    if (n) return openDialog({ title: '削除できません', message: `「${s.name}」には${n}点のアイテムが登録されています。アイテムのサブカテゴリを変更してから削除してください。`, buttons: [{ label: 'OK', style: 'bold', fn: closeDialog }] });
+    openDialog({ title: `「${s.name}」を削除しますか？`, buttons: [{ label: 'キャンセル', fn: closeDialog }, { label: '削除', style: 'destructive bold', fn: () => {
+      state.subs[catId] = state.subs[catId].filter(x => x.id !== s.id); state.dialog = null; toast('削除しました'); render(); } }] });
+  },
+  dialogBtn: el => state.dialog.buttons[+el.dataset.k].fn(),
+};
+
+$app.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el || !$app.contains(el) || el.disabled) return;
+  actions[el.dataset.action]?.(el);
+});
+$app.addEventListener('input', e => {
+  const t = e.target;
+  if (t.hasAttribute('data-dialog-input')) { state.dialog.input = t.value; return; }
+  if (t.dataset.field && t.tagName !== 'SELECT' && state.form) {
+    state.form[t.dataset.field] = t.value; state.form.dirty = true;
+  }
+});
+$app.addEventListener('change', e => {
+  const t = e.target;
+  if (t.tagName === 'SELECT' && state.form) {
+    state.form[t.dataset.field] = t.value; state.form.dirty = true;
+    if (t.dataset.field === 'catId') { state.form.subId = ''; delete state.form.errors.catId; }
+    render();
+  }
+});
+$app.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.hasAttribute('data-dialog-input')) { const b = state.dialog.buttons; b[b.length - 1].fn(); }
+});
+
+/* ---------- 説明パネル ---------- */
+$panel.addEventListener('click', e => {
+  const b = e.target.closest('[data-panel]');
+  if (!b) return;
+  const k = b.dataset.panel;
+  state.sheet = null; state.dialog = null;
+  if (k === 'reset') { resetState(); render(true); return; }
+  const firstItem = state.items[0];
+  switch (k) {
+    case 'SC-01': state.stack = [{ name: 'SC-01' }]; break;
+    case 'SC-02': state.stack = [{ name: 'SC-01' }]; render(true); actions.openFilter(); return;
+    case 'SC-03': state.stack = [{ name: 'SC-01' }]; render(true); actions.openSort(); return;
+    case 'SC-04': if (!firstItem) { toast('アイテムが0件です'); break; } state.stack = [{ name: 'SC-01' }, { name: 'SC-04', id: firstItem.id }]; break;
+    case 'SC-05': state.form = blankForm(); state.stack = [{ name: 'SC-01' }, { name: 'SC-05' }]; break;
+    case 'SC-06': state.stack = [{ name: 'SC-06' }]; break;
+    case 'SC-07': state.stack = [{ name: 'SC-06' }, { name: 'SC-07' }]; break;
+    case 'SC-08': state.reorder = false; state.stack = [{ name: 'SC-06' }, { name: 'SC-07' }, { name: 'SC-08', cat: 'bottoms' }]; break;
+  }
+  render(true);
+});
+$panel.addEventListener('change', e => {
+  const t = e.target.dataset.toggle;
+  if (t === 'empty') {
+    state.emptyMode = e.target.checked;
+    if (state.emptyMode) { state.backupItems = state.items; state.items = []; }
+    else { state.items = state.backupItems || sampleItems(state.subs); state.backupItems = null; }
+    state.filter = emptyFilter(); state.stack = [{ name: 'SC-01' }];
+  }
+  if (t === 'browser') { state.browserMode = e.target.checked; state.bannerClosed = false; }
+  render(true);
+});
+
+render(true);
+</script>
+</body>
+</html>
